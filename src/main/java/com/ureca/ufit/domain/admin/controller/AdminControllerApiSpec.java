@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotBlank;
 
 @Tag(name = "Admin API", description = "어드민 관련 API")
 public interface AdminControllerApiSpec {
@@ -126,6 +127,6 @@ public interface AdminControllerApiSpec {
 	)
 	@PatchMapping("/api/admin/rateplans/{ratePlanId}")
 	public ResponseEntity<RatePlanStatusResponse> updateRatePlanSalesStatus(
-		@PathVariable(name = "ratePlanId") String ratePlanId
+		@PathVariable(name = "ratePlanId") @NotBlank String ratePlanId
 	);
 }
