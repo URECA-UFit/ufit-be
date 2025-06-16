@@ -19,6 +19,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 		return findByEmail(email).orElseThrow(() -> new RestApiException(UserErrorCode.USER_NOT_FOUND));
 	}
 
+	long countByRatePlanId(String ratePlanId);
+
 	@Query("SELECT u.ratePlanId AS ratePlanId, COUNT(u) AS count " +
 			"FROM User u GROUP BY u.ratePlanId")
 	List<RatePlanCountProjection> countUsersByRatePlan();
