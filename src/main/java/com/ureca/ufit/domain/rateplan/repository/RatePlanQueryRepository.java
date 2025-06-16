@@ -1,14 +1,15 @@
 package com.ureca.ufit.domain.rateplan.repository;
 
-import com.ureca.ufit.domain.admin.dto.response.AdminRatePlanResponse;
-import com.ureca.ufit.domain.rateplan.dto.response.RatePlanDetailResponse;
-import com.ureca.ufit.domain.rateplan.dto.response.RatePlanPreviewResponse;
-import com.ureca.ufit.global.dto.CursorPageResponse;
-import com.ureca.ufit.entity.RatePlan;
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.Optional;
+import com.ureca.ufit.domain.admin.dto.response.AdminRatePlanResponse;
+import com.ureca.ufit.domain.rateplan.dto.response.RatePlanDetailResponse;
+import com.ureca.ufit.domain.rateplan.dto.response.RatePlanPreviewResponse;
+import com.ureca.ufit.entity.RatePlan;
+import com.ureca.ufit.global.dto.CursorPageResponse;
 
 public interface RatePlanQueryRepository {
 

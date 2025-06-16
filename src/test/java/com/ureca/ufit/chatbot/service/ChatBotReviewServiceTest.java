@@ -17,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.ureca.ufit.common.fixture.ChatBotReviewFixture;
 import com.ureca.ufit.domain.chatbot.dto.request.CreateChatBotReviewRequest;
+import com.ureca.ufit.domain.chatbot.dto.request.CreateUserQuerySummaryRequest;
 import com.ureca.ufit.domain.chatbot.dto.response.CreateChatBotReviewResponse;
 import com.ureca.ufit.domain.chatbot.dto.response.QuestionSummaryDto;
 import com.ureca.ufit.domain.chatbot.repository.ChatBotReviewRepository;
@@ -49,15 +50,20 @@ class ChatBotReviewServiceTest {
 					Map.of("bPlan", "내맘대로 5G 요금제")
 				)
 			),
-			1L
+			1L,
+			"684d9a790eea0b57af47a8d1"
 		);
 		QuestionSummaryDto questionSummaryDto = new QuestionSummaryDto("데이터 많은 요금제 추천해줘");
 		ChatBotReview chatBotReview = ChatBotReviewFixture.chatBotReview(
 			request.content(),
-			questionSummaryDto.questionSummary()
+			questionSummaryDto.summary()
 		);
 
-		given(restTemplate.getForObject(anyString(), eq(QuestionSummaryDto.class))).willReturn(questionSummaryDto);
+		given(restTemplate.postForObject(
+			anyString(),
+			any(CreateUserQuerySummaryRequest.class),
+			eq(QuestionSummaryDto.class)
+		)).willReturn(questionSummaryDto);
 		given(chatBotReviewRepository.save(any(ChatBotReview.class))).willReturn(chatBotReview);
 
 		// when
@@ -67,7 +73,10 @@ class ChatBotReviewServiceTest {
 		assertAll(
 			() -> assertThat(response.message()).isEqualTo(CHAT_REVIEW_SUCCESS_MSG),
 			() -> verify(chatBotReviewRepository).save(any(ChatBotReview.class)),
-			() -> verify(restTemplate).getForObject(anyString(), eq(QuestionSummaryDto.class))
+			() -> verify(restTemplate).postForObject(
+				anyString(),
+				any(CreateUserQuerySummaryRequest.class),
+				eq(QuestionSummaryDto.class))
 		);
 	}
 }
