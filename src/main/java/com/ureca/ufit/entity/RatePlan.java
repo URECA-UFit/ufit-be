@@ -149,4 +149,7 @@ public class RatePlan extends MongoTimeBaseEntity {
 		this.isDeleted = !isDeleted;
 	}
 
+	public void updateSalesStatus() {
+		this.isEnabled = !this.isEnabled;
+	}
 }

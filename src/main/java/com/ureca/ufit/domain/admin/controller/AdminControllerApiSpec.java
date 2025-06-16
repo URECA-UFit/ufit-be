@@ -2,6 +2,7 @@ package com.ureca.ufit.domain.admin.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,6 +13,7 @@ import com.ureca.ufit.domain.admin.dto.response.AdminRatePlanResponse;
 import com.ureca.ufit.domain.admin.dto.response.ChatBotReviewResponse;
 import com.ureca.ufit.domain.admin.dto.response.CreateRatePlanResponse;
 import com.ureca.ufit.domain.admin.dto.response.DeleteRatePlanResponse;
+import com.ureca.ufit.domain.admin.dto.response.RatePlanStatusResponse;
 import com.ureca.ufit.global.dto.CursorPageResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -113,5 +115,17 @@ public interface AdminControllerApiSpec {
 	public ResponseEntity<CursorPageResponse<ChatBotReviewResponse>> getChatBotReviewByCursor(
 		@RequestParam(name = "cursor", required = false) String cursor,
 		@RequestParam(name = "size", defaultValue = "10") int size
+	);
+
+	@Operation(summary = "요금제 판매 상태 변경", description = "삭제되지 않은 요금제의 판매 상태를 변경한다.")
+	@ApiResponses(
+		@ApiResponse(
+			responseCode = "200", description = "요금제 상태 변경 성공",
+			content = @Content(schema = @Schema(implementation = RatePlanStatusResponse.class))
+		)
+	)
+	@PatchMapping("/api/admin/rateplans/{rateplanId}")
+	public ResponseEntity<RatePlanStatusResponse> updateRatePlanSalesStatus(
+		@PathVariable(name = "ratePlanId") String ratePlanId
 	);
 }
