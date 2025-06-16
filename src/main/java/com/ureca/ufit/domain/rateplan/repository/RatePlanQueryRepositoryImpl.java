@@ -2,9 +2,6 @@ package com.ureca.ufit.domain.rateplan.repository;
 
 import java.util.*;
 
-import com.ureca.ufit.domain.rateplan.dto.response.RatePlanDetailResponse;
-import com.ureca.ufit.domain.rateplan.dto.response.RatePlanPreviewResponse;
-import com.ureca.ufit.entity.RatePlan;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -18,6 +15,9 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
 import com.ureca.ufit.domain.admin.dto.response.AdminRatePlanResponse;
+import com.ureca.ufit.domain.rateplan.dto.response.RatePlanDetailResponse;
+import com.ureca.ufit.domain.rateplan.dto.response.RatePlanPreviewResponse;
+import com.ureca.ufit.entity.RatePlan;
 import com.ureca.ufit.global.dto.CursorPageResponse;
 
 import lombok.RequiredArgsConstructor;
