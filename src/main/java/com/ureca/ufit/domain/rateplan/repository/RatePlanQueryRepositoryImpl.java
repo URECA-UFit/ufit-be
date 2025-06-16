@@ -159,32 +159,6 @@ public class RatePlanQueryRepositoryImpl implements RatePlanQueryRepository {
 		return Sort.Order.desc(CURSOR);
 	}
 
-	@Override
-	public Page<RatePlan> findEnabledRatePlansWithSort(Pageable pageable, String sortType) {
-		Criteria criteria = Criteria.where(IS_ENABLED).is(true)
-			.and(IS_DELETED).is(false);
-
-		Sort sort;
-		if (NAME_ASC.equalsIgnoreCase(sortType)) {
-			sort = Sort.by("planName").ascending();
-		} else if (NAME_DESC.equalsIgnoreCase(sortType)) {
-			sort = Sort.by("planName").descending();
-		} else if (PRICE_DESC.equalsIgnoreCase(sortType)) {
-			sort = Sort.by("monthlyFee").descending();
-		} else {
-			sort = Sort.by("monthlyFee").ascending();
-		}
-
-		Query query = new Query(criteria)
-			.with(sort)
-			.skip(pageable.getOffset())
-			.limit(pageable.getPageSize());
-
-		List<RatePlan> items = mongoTemplate.find(query, RatePlan.class);
-		long total = items.size();
-
-		return new PageImpl<>(items, pageable, total);
-	}
 
 	@Override
 	public Page<RatePlanPreviewResponse> getRatePlanPreviews(Pageable pageable, String sortType) {

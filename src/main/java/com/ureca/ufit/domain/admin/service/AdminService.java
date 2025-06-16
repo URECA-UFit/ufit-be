@@ -56,10 +56,6 @@ public class AdminService {
 	}
 
 	public RatePlanMetricsResponse getRatePlanMetrics(int page, int size) {
-		Pageable pageable = PageRequest.of(page - 1, size);
-		Page<RatePlan> pageResult = ratePlanRepository.findEnabledRatePlansWithSort(pageable, "NAME_ASC");
-		List<RatePlan> items = new ArrayList<>(pageResult.getContent());
-		long totalCount = pageResult.getTotalElements();
 
 		Map<String, Long> subscriberMap = userRepository.countUsersByRatePlan().stream()
 			.collect(Collectors.toMap(
@@ -67,11 +63,22 @@ public class AdminService {
 				UserRepository.RatePlanCountProjection::getCount
 			));
 
-		items.sort(Comparator.comparingLong(
-			plan -> subscriberMap.getOrDefault(plan.getClass(), 0L)
-		).reversed());
+		List<RatePlan> allPlans = new ArrayList<> (ratePlanRepository.findAll().stream()
+			.filter(RatePlan::isEnabled)
+			.filter(plan -> !plan.isDeleted())
+			.toList());
 
+		allPlans.sort(Comparator
+			.comparingLong( (RatePlan plan) -> subscriberMap.getOrDefault(plan.getId(), 0L))
+			.reversed()
+			.thenComparing(RatePlan::getPlanName));
 
+		int totalCount = allPlans.size();
+		int from = (page - 1) * size;
+		int to = Math.min(from + size, totalCount);
+		List<RatePlan> items = (from >= totalCount)
+			? List.of()
+			: allPlans.subList(from, to);
 
 		return RatePlanMapper.toRatePlanMetricsResponse(items, subscriberMap, page, size, totalCount);
 	}
