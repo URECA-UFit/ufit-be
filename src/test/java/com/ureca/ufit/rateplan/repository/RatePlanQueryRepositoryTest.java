@@ -257,7 +257,6 @@ class RatePlanQueryRepositoryTest extends DataMongoSupport {
 		RatePlan savedPlan = ratePlanRepository.save(plan);
 		String id = savedPlan.getId();
 
-		System.out.println("저장된 요금제 ID = " + id);
 
 		// when
 		Optional<RatePlanDetailResponse> result =
