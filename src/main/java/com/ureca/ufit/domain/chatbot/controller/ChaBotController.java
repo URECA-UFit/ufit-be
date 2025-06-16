@@ -27,6 +27,8 @@ public class ChaBotController implements ChaBotControllerApiSpec {
 	private final ChatRoomService chatRoomService;
 	private final ChatBotReviewService chatBotReviewService;
 
+	private final Long nonUserId = -1L;
+
 	@Override
 	public ResponseEntity<CursorPageResponse<ChatMessageDto>> getMessages(Long chatRoomId, String lastMessageId,
 		Pageable pageable) {
@@ -50,8 +52,10 @@ public class ChaBotController implements ChaBotControllerApiSpec {
 	@Override
 	public ResponseEntity<CreateChatBotMessageResponse> createChatBotMessage(CustomUserDetails userDetails,
 		CreateChatBotMessageRequest request) {
-		CreateChatBotMessageResponse response = chatBotMessageService.createChatBotMessage(request,
-			userDetails.userId());
+
+		Long userId = (userDetails != null) ? userDetails.userId() : nonUserId;
+
+		CreateChatBotMessageResponse response = chatBotMessageService.createChatBotMessage(request, userId);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
