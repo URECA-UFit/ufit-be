@@ -124,7 +124,7 @@ public interface AdminControllerApiSpec {
 			content = @Content(schema = @Schema(implementation = RatePlanStatusResponse.class))
 		)
 	)
-	@PatchMapping("/api/admin/rateplans/{rateplanId}")
+	@PatchMapping("/api/admin/rateplans/{ratePlanId}")
 	public ResponseEntity<RatePlanStatusResponse> updateRatePlanSalesStatus(
 		@PathVariable(name = "ratePlanId") String ratePlanId
 	);
