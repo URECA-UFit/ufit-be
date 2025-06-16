@@ -1,7 +1,10 @@
 package com.ureca.ufit.domain.admin.controller;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ureca.ufit.domain.admin.dto.request.CreateRatePlanRequest;
@@ -9,6 +12,7 @@ import com.ureca.ufit.domain.admin.dto.response.AdminRatePlanResponse;
 import com.ureca.ufit.domain.admin.dto.response.ChatBotReviewResponse;
 import com.ureca.ufit.domain.admin.dto.response.CreateRatePlanResponse;
 import com.ureca.ufit.domain.admin.dto.response.DeleteRatePlanResponse;
+import com.ureca.ufit.domain.admin.dto.response.RatePlanMetricsResponse;
 import com.ureca.ufit.domain.admin.service.AdminService;
 import com.ureca.ufit.global.dto.CursorPageResponse;
 
@@ -40,11 +44,14 @@ public class AdminController implements AdminControllerApiSpec {
 	}
 
 	// 요금제 지표 조회
-	//    @GetMapping("/api/admin/rateplans/metrics")
-	//    public ResponseEntity<RatePlanMetricsResponse> getRatePlanMetrics(){
-	//        ResponseEntity response = adminService.getRatePlanMetrics();
-	//        return ResponseEntity.ok();
-	//    }
+	@GetMapping("/api/admin/rateplans/metrics")
+	public ResponseEntity<RatePlanMetricsResponse> getRatePlanMetrics(
+		@RequestParam(defaultValue = "1") int page,
+		@RequestParam(defaultValue = "10") int size
+	){
+	   RatePlanMetricsResponse response = adminService.getRatePlanMetrics(page, size);
+	   return ResponseEntity.ok(response);
+	}
 
 	@Override
 	public ResponseEntity<CursorPageResponse<ChatBotReviewResponse>> getChatBotReviewByCursor(String cursor, int size) {
