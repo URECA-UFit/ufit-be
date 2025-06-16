@@ -1,5 +1,10 @@
 package com.ureca.ufit.domain.chatbot.service;
 
+import static com.ureca.ufit.global.profanity.BanwordFilterPolicy.*;
+
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -15,6 +20,8 @@ import com.ureca.ufit.domain.chatbot.repository.ChatRoomRepository;
 import com.ureca.ufit.entity.ChatRoom;
 import com.ureca.ufit.global.dto.CursorPageResponse;
 import com.ureca.ufit.global.exception.RestApiException;
+import com.ureca.ufit.global.profanity.BanwordFilterPolicy;
+import com.ureca.ufit.global.profanity.ProfanityService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,7 +32,10 @@ public class ChatBotMessageService {
 	private final ChatBotMessageRepository chatBotMessageRepository;
 	private final ChatRoomRepository chatRoomRepository;
 	private final RestTemplate restTemplate;
-	private final String fastApiUrl = "https://ai.u-fit.site/api/chats/message/ai";
+
+	@Value("${llm.base-url}")
+	private String llmBaseUrl;
+	private final ProfanityService profanityService;
 
 	public CursorPageResponse<ChatMessageDto> getChatMessages(Long chatRoomId, Pageable pageable,
 		String lastMessageId) {
@@ -36,7 +46,13 @@ public class ChatBotMessageService {
 
 	public CreateChatBotMessageResponse createChatBotMessage(CreateChatBotMessageRequest request, Long userId) {
 
-		// Todo : content에 대한 금칙어 판단 필요
+		Set<BanwordFilterPolicy> policies = Set.of(NUMBERS, WHITESPACES);
+
+		if (profanityService.containsBannedWord(request.content(), policies)) {
+			throw new RestApiException(ChatBotErrorCode.CONTENT_RESTRICTED_WORD);
+		}
+
+		final String fastApiUrl = String.format("%s/api/chats/message/ai", llmBaseUrl);
 
 		CreateAIAnswerRequest createAIAnswerRequest = ChatMessageMapper.toCreateAIAnswerRequest(request, userId);
 
