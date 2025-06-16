@@ -15,8 +15,6 @@ public interface RatePlanQueryRepository {
 
 	public CursorPageResponse<AdminRatePlanResponse> getRatePlansByCursor(String cursor, int size, String type);
 
-	Page<RatePlan> findEnabledRatePlansWithSort(Pageable pageable, String sortType);
-
 	Page<RatePlanPreviewResponse> getRatePlanPreviews(Pageable pageable, String sortType);
 
 	Optional<RatePlanDetailResponse> getRatePlanDetailById(String id);

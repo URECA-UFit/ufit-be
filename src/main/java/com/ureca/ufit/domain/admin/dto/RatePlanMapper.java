@@ -3,10 +3,12 @@ package com.ureca.ufit.domain.admin.dto;
 import static lombok.AccessLevel.*;
 
 import java.util.List;
+import java.util.Map;
 
 import com.ureca.ufit.domain.admin.dto.request.CreateRatePlanRequest;
 import com.ureca.ufit.domain.admin.dto.response.CreateRatePlanResponse;
 import com.ureca.ufit.domain.admin.dto.response.DeleteRatePlanResponse;
+import com.ureca.ufit.domain.admin.dto.response.RatePlanMetricsItem;
 import com.ureca.ufit.domain.admin.dto.response.RatePlanMetricsResponse;
 import com.ureca.ufit.entity.RatePlan;
 
@@ -40,14 +42,22 @@ public class RatePlanMapper {
 	}
 
 	public static RatePlanMetricsResponse toRatePlanMetricsResponse(
-		List<Object> item,
+		List<RatePlan> item,
+		Map<String, Long> subscriberCountMap,
 		int page,
 		int size,
-		int offset,
-		boolean hasPrevious,
-		boolean hasNext
+		long totalCount
 	) {
-		return new RatePlanMetricsResponse(item, page, size, offset, hasPrevious, hasNext);
+		List<RatePlanMetricsItem> items = item.stream()
+			.map(plan -> new RatePlanMetricsItem(
+				plan.getPlanName(),
+				subscriberCountMap.getOrDefault(plan.getId(), 0L).intValue()
+			)).toList();
+
+		int offset = page * size;
+		boolean hasPrevious = page > 1;
+		boolean hasNext = offset + items.size() < totalCount;
+		return new RatePlanMetricsResponse(items, page, size, offset, hasPrevious, hasNext);
 	}
 
 }

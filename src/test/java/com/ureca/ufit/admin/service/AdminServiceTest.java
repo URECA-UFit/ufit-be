@@ -1,7 +1,6 @@
 package com.ureca.ufit.admin.service;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.*;import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
 import org.junit.jupiter.api.DisplayName;
@@ -71,5 +70,5 @@ class AdminServiceTest {
 		assertThatThrownBy(() -> adminService.updateRatePlanSalesStatus(id))
 			.isInstanceOf(RestApiException.class)
 			.hasMessage(RatePlanErrorCode.RATE_PLAN_ALREADY_DELETED.getMessage());
-	}
+  }
 }
