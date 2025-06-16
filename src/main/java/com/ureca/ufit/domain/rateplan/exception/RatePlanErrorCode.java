@@ -9,8 +9,8 @@ import lombok.Getter;
 @Getter
 public enum RatePlanErrorCode implements ErrorCode {
 
-	RATEPLAN_NOT_FOUND("해당 ratePlanId의 요금제를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
-	RATEPLAN_ALREADY_DELETED("이미 삭제된 요금제입니다.", HttpStatus.BAD_REQUEST);
+	RATE_PLAN_NOT_FOUND("해당 ratePlanId의 요금제를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+	RATE_PLAN_ALREADY_DELETED("이미 삭제된 요금제입니다.", HttpStatus.BAD_REQUEST);
 
 	private final String message;
 	private final HttpStatus httpStatus;
