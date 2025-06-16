@@ -22,7 +22,7 @@ public class RatePlanFixture {
 			"무제한",
 			Map.of("benefit", "basic"),
 			true,
-			true
+			false
 		);
 	}
 }
