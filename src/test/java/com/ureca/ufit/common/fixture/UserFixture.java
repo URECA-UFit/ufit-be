@@ -18,4 +18,8 @@ public class UserFixture {
 		String ratePlanId) {
 		return User.of(username, password, age, famliy, gender, role, ratePlanId);
 	}
+
+	public static User user(String email, Role role) {
+		return User.of(email, "password", 10, 0, Gender.MAN, role, "aPlan");
+	}
 }

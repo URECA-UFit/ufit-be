@@ -25,4 +25,19 @@ public class RatePlanFixture {
 			false
 		);
 	}
+
+	public static RatePlan ratePlan(String planName, boolean isEnable, boolean isDeleted) {
+		return RatePlan.of(
+			planName,
+			"요금제",
+			1000,
+			1000,
+			"100G",
+			"무제한",
+			"무제한",
+			Map.of("benefit", "basic"),
+			isEnable,
+			isDeleted
+		);
+	}
 }
