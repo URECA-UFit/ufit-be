@@ -4,6 +4,7 @@ import java.util.Map;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -34,7 +35,11 @@ public record CreateChatBotReviewRequest(
 
 	@NotNull
 	@Positive
-	@Schema(description = "성별", example = "10")
-	Long chatRoomId
+	@Schema(description = "채팅방 ID", example = "10")
+	Long chatRoomId,
+
+	@NotBlank
+	@Schema(description = "리뷰에 해당하는 추천 요금제 메시지ID", example = "684d9a790eea0b57af47a8d1")
+	String recommendation_message_id
 ) {
 }

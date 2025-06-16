@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import com.ureca.ufit.domain.rateplan.dto.response.RatePlanDetailResponse;
-import com.ureca.ufit.domain.rateplan.dto.response.RatePlanPreviewResponse;
-import com.ureca.ufit.entity.RatePlan;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -21,6 +18,9 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
 import com.ureca.ufit.domain.admin.dto.response.AdminRatePlanResponse;
+import com.ureca.ufit.domain.rateplan.dto.response.RatePlanDetailResponse;
+import com.ureca.ufit.domain.rateplan.dto.response.RatePlanPreviewResponse;
+import com.ureca.ufit.entity.RatePlan;
 import com.ureca.ufit.global.dto.CursorPageResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -162,7 +162,7 @@ public class RatePlanQueryRepositoryImpl implements RatePlanQueryRepository {
 	@Override
 	public Page<RatePlan> findEnabledRatePlansWithSort(Pageable pageable, String sortType) {
 		Criteria criteria = Criteria.where(IS_ENABLED).is(true)
-				.and(IS_DELETED).is(false);
+			.and(IS_DELETED).is(false);
 
 		Sort sort;
 		if (NAME_ASC.equalsIgnoreCase(sortType)) {
@@ -176,9 +176,9 @@ public class RatePlanQueryRepositoryImpl implements RatePlanQueryRepository {
 		}
 
 		Query query = new Query(criteria)
-				.with(sort)
-				.skip(pageable.getOffset())
-				.limit(pageable.getPageSize());
+			.with(sort)
+			.skip(pageable.getOffset())
+			.limit(pageable.getPageSize());
 
 		List<RatePlan> items = mongoTemplate.find(query, RatePlan.class);
 		long total = items.size();
@@ -189,7 +189,7 @@ public class RatePlanQueryRepositoryImpl implements RatePlanQueryRepository {
 	@Override
 	public Page<RatePlanPreviewResponse> getRatePlanPreviews(Pageable pageable, String sortType) {
 		Criteria criteria = Criteria.where(IS_ENABLED).is(true)
-				.and(IS_DELETED).is(false);
+			.and(IS_DELETED).is(false);
 
 		Sort sort;
 		if (NAME_ASC.equalsIgnoreCase(sortType)) {
@@ -203,9 +203,9 @@ public class RatePlanQueryRepositoryImpl implements RatePlanQueryRepository {
 		}
 
 		Query query = new Query(criteria)
-				.with(sort)
-				.skip(pageable.getOffset())
-				.limit(pageable.getPageSize());
+			.with(sort)
+			.skip(pageable.getOffset())
+			.limit(pageable.getPageSize());
 
 		List<RatePlanPreviewResponse> results = mongoTemplate.find(query, RatePlanPreviewResponse.class, RATE_PLANS);
 		long total = results.size();
@@ -216,15 +216,15 @@ public class RatePlanQueryRepositoryImpl implements RatePlanQueryRepository {
 	@Override
 	public Optional<RatePlanDetailResponse> getRatePlanDetailById(String id) {
 		Criteria criteria = Criteria.where("_id").is(id)
-				.and(IS_ENABLED).is(true)
-				.and(IS_DELETED).is(false);
+			.and(IS_ENABLED).is(true)
+			.and(IS_DELETED).is(false);
 
 		Query query = new Query(criteria);
 
 		RatePlanDetailResponse result = mongoTemplate.findOne(
-				query,
-				RatePlanDetailResponse.class,
-				"rate_plans"
+			query,
+			RatePlanDetailResponse.class,
+			"rate_plans"
 		);
 
 		return Optional.ofNullable(result);
