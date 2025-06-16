@@ -1,5 +1,8 @@
 package com.ureca.ufit.domain.admin.service;
 
+
+import static com.ureca.ufit.domain.rateplan.exception.RatePlanErrorCode.*;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -17,6 +20,7 @@ import com.ureca.ufit.domain.admin.dto.response.AdminRatePlanResponse;
 import com.ureca.ufit.domain.admin.dto.response.ChatBotReviewResponse;
 import com.ureca.ufit.domain.admin.dto.response.CreateRatePlanResponse;
 import com.ureca.ufit.domain.admin.dto.response.DeleteRatePlanResponse;
+import com.ureca.ufit.domain.admin.dto.response.RatePlanStatusResponse;
 import com.ureca.ufit.domain.admin.dto.response.RatePlanMetricsResponse;
 import com.ureca.ufit.domain.chatbot.repository.ChatBotReviewRepository;
 import com.ureca.ufit.domain.rateplan.exception.RatePlanErrorCode;
@@ -47,7 +51,7 @@ public class AdminService {
 
 	public DeleteRatePlanResponse deleteRatePlan(String ratePlanId) {
 		RatePlan ratePlan = ratePlanRepository.findById(ratePlanId)
-			.orElseThrow(() -> new RestApiException(RatePlanErrorCode.RATEPLAN_NOT_FOUND)
+			.orElseThrow(() -> new RestApiException(RatePlanErrorCode.RATE_PLAN_NOT_FOUND)
 			);
 		ratePlan.updateDeleteStatus();
 		ratePlanRepository.save(ratePlan);
@@ -87,4 +91,20 @@ public class AdminService {
 		return chatBotReviewRepository.getChatBotReviewByCursor(cursor, size);
 	}
 
+	public RatePlanStatusResponse updateRatePlanSalesStatus(String ratePlanId) {
+		RatePlan findRatePlan = ratePlanRepository.getById(ratePlanId);
+
+		isDeleted(findRatePlan);
+
+		findRatePlan.updateSalesStatus();
+		RatePlan savedRatePlan = ratePlanRepository.save(findRatePlan);
+
+		return new RatePlanStatusResponse(savedRatePlan.getId(), savedRatePlan.isEnabled());
+	}
+
+	private void isDeleted(RatePlan findRatePlan) {
+		if (findRatePlan.isDeleted()) {
+			throw new RestApiException(RATE_PLAN_ALREADY_DELETED);
+		}
+	}
 }

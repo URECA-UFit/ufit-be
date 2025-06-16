@@ -12,6 +12,7 @@ import com.ureca.ufit.domain.admin.dto.response.AdminRatePlanResponse;
 import com.ureca.ufit.domain.admin.dto.response.ChatBotReviewResponse;
 import com.ureca.ufit.domain.admin.dto.response.CreateRatePlanResponse;
 import com.ureca.ufit.domain.admin.dto.response.DeleteRatePlanResponse;
+import com.ureca.ufit.domain.admin.dto.response.RatePlanStatusResponse;
 import com.ureca.ufit.domain.admin.dto.response.RatePlanMetricsResponse;
 import com.ureca.ufit.domain.admin.service.AdminService;
 import com.ureca.ufit.global.dto.CursorPageResponse;
@@ -56,6 +57,12 @@ public class AdminController implements AdminControllerApiSpec {
 	@Override
 	public ResponseEntity<CursorPageResponse<ChatBotReviewResponse>> getChatBotReviewByCursor(String cursor, int size) {
 		CursorPageResponse<ChatBotReviewResponse> response = adminService.getChatBotReview(cursor, size);
+		return ResponseEntity.ok(response);
+	}
+
+	@Override
+	public ResponseEntity<RatePlanStatusResponse> updateRatePlanSalesStatus(String ratePlanId) {
+		RatePlanStatusResponse response = adminService.updateRatePlanSalesStatus(ratePlanId);
 		return ResponseEntity.ok(response);
 	}
 
