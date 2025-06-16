@@ -20,7 +20,6 @@ import org.springframework.stereotype.Repository;
 import com.ureca.ufit.domain.admin.dto.response.AdminRatePlanResponse;
 import com.ureca.ufit.domain.rateplan.dto.response.RatePlanDetailResponse;
 import com.ureca.ufit.domain.rateplan.dto.response.RatePlanPreviewResponse;
-import com.ureca.ufit.entity.RatePlan;
 import com.ureca.ufit.global.dto.CursorPageResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -158,7 +157,6 @@ public class RatePlanQueryRepositoryImpl implements RatePlanQueryRepository {
 		}
 		return Sort.Order.desc(CURSOR);
 	}
-
 
 	@Override
 	public Page<RatePlanPreviewResponse> getRatePlanPreviews(Pageable pageable, String sortType) {

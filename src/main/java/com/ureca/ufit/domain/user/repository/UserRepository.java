@@ -20,11 +20,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	}
 
 	@Query("SELECT u.ratePlanId AS ratePlanId, COUNT(u) AS count " +
-			"FROM User u GROUP BY u.ratePlanId")
+		"FROM User u GROUP BY u.ratePlanId")
 	List<RatePlanCountProjection> countUsersByRatePlan();
 
 	public interface RatePlanCountProjection {
 		String getRatePlanId();
+
 		long getCount();
 	}
 }

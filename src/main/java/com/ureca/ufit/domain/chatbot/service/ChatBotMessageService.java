@@ -29,13 +29,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ChatBotMessageService {
 
-	private final ChatBotMessageRepository chatBotMessageRepository;
-	private final ChatRoomRepository chatRoomRepository;
-	private final RestTemplate restTemplate;
-
 	@Value("${llm.base-url}")
 	private String llmBaseUrl;
 	private final ProfanityService profanityService;
+	private final ChatBotMessageRepository chatBotMessageRepository;
+	private final ChatRoomRepository chatRoomRepository;
+	private final RestTemplate restTemplate;
 
 	public CursorPageResponse<ChatMessageDto> getChatMessages(Long chatRoomId, Pageable pageable,
 		String lastMessageId) {
