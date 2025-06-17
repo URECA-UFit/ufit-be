@@ -1,6 +1,7 @@
 package com.ureca.ufit.admin.service;
 
-import static org.assertj.core.api.Assertions.*;import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
 import java.util.Optional;
@@ -81,7 +82,7 @@ class AdminServiceTest {
 			.hasMessage(RatePlanErrorCode.RATE_PLAN_ALREADY_DELETED.getMessage());
   }
 
-  	@DisplayName("판매중지이며 가입자가 한 명도 없을 때 요금제를 삭제한다.")
+  @DisplayName("판매중지이며 가입자가 한 명도 없을 때 요금제를 삭제한다.")
 	@Test
 	void deleteRatePlan() {
 		// given

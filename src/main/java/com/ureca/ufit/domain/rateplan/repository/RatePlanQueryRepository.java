@@ -8,7 +8,6 @@ import org.springframework.data.domain.Pageable;
 import com.ureca.ufit.domain.admin.dto.response.AdminRatePlanResponse;
 import com.ureca.ufit.domain.rateplan.dto.response.RatePlanDetailResponse;
 import com.ureca.ufit.domain.rateplan.dto.response.RatePlanPreviewResponse;
-import com.ureca.ufit.entity.RatePlan;
 import com.ureca.ufit.global.dto.CursorPageResponse;
 
 public interface RatePlanQueryRepository {

@@ -1,6 +1,5 @@
 package com.ureca.ufit.domain.admin.service;
 
-
 import static com.ureca.ufit.domain.rateplan.exception.RatePlanErrorCode.*;
 
 import java.util.ArrayList;
@@ -9,9 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.ureca.ufit.domain.admin.dto.RatePlanMapper;
@@ -20,8 +16,8 @@ import com.ureca.ufit.domain.admin.dto.response.AdminRatePlanResponse;
 import com.ureca.ufit.domain.admin.dto.response.ChatBotReviewResponse;
 import com.ureca.ufit.domain.admin.dto.response.CreateRatePlanResponse;
 import com.ureca.ufit.domain.admin.dto.response.DeleteRatePlanResponse;
-import com.ureca.ufit.domain.admin.dto.response.RatePlanStatusResponse;
 import com.ureca.ufit.domain.admin.dto.response.RatePlanMetricsResponse;
+import com.ureca.ufit.domain.admin.dto.response.RatePlanStatusResponse;
 import com.ureca.ufit.domain.chatbot.repository.ChatBotReviewRepository;
 import com.ureca.ufit.domain.rateplan.exception.RatePlanErrorCode;
 import com.ureca.ufit.domain.rateplan.repository.RatePlanRepository;
@@ -77,13 +73,13 @@ public class AdminService {
 				UserRepository.RatePlanCountProjection::getCount
 			));
 
-		List<RatePlan> allPlans = new ArrayList<> (ratePlanRepository.findAll().stream()
+		List<RatePlan> allPlans = new ArrayList<>(ratePlanRepository.findAll().stream()
 			.filter(RatePlan::isEnabled)
 			.filter(plan -> !plan.isDeleted())
 			.toList());
 
 		allPlans.sort(Comparator
-			.comparingLong( (RatePlan plan) -> subscriberMap.getOrDefault(plan.getId(), 0L))
+			.comparingLong((RatePlan plan) -> subscriberMap.getOrDefault(plan.getId(), 0L))
 			.reversed()
 			.thenComparing(RatePlan::getPlanName));
 

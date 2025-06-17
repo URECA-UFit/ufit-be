@@ -9,4 +9,5 @@ public record RatePlanMetricsResponse(
 	int offset,
 	boolean hasPrevious,
 	boolean hasNext
-) { }
+) {
+}

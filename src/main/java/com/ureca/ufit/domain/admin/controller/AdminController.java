@@ -1,6 +1,5 @@
 package com.ureca.ufit.domain.admin.controller;
 
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,8 +11,8 @@ import com.ureca.ufit.domain.admin.dto.response.AdminRatePlanResponse;
 import com.ureca.ufit.domain.admin.dto.response.ChatBotReviewResponse;
 import com.ureca.ufit.domain.admin.dto.response.CreateRatePlanResponse;
 import com.ureca.ufit.domain.admin.dto.response.DeleteRatePlanResponse;
-import com.ureca.ufit.domain.admin.dto.response.RatePlanStatusResponse;
 import com.ureca.ufit.domain.admin.dto.response.RatePlanMetricsResponse;
+import com.ureca.ufit.domain.admin.dto.response.RatePlanStatusResponse;
 import com.ureca.ufit.domain.admin.service.AdminService;
 import com.ureca.ufit.global.dto.CursorPageResponse;
 
@@ -49,9 +48,9 @@ public class AdminController implements AdminControllerApiSpec {
 	public ResponseEntity<RatePlanMetricsResponse> getRatePlanMetrics(
 		@RequestParam(defaultValue = "1") int page,
 		@RequestParam(defaultValue = "10") int size
-	){
-	   RatePlanMetricsResponse response = adminService.getRatePlanMetrics(page, size);
-	   return ResponseEntity.ok(response);
+	) {
+		RatePlanMetricsResponse response = adminService.getRatePlanMetrics(page, size);
+		return ResponseEntity.ok(response);
 	}
 
 	@Override
