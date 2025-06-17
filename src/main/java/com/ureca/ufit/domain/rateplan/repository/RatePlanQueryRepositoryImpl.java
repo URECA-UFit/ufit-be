@@ -210,17 +210,17 @@ public class RatePlanQueryRepositoryImpl implements RatePlanQueryRepository {
 		pipeline.add(Aggregation.match(criteria));
 
 		AggregationOperation project = Aggregation.project()
-			.and("_id").as("id")
-			.and("plan_name").as("planName")
-			.and("summary").as("summary")
-			.and("monthly_fee").as("monthlyFee")
-			.and("discount_fee").as("discountFee")
-			.and("data_allowance").as("dataAllowance")
-			.and("voice_allowance").as("voiceAllowance")
-			.and("sms_allowance").as("smsAllowance")
-			.and("basic_benefit").as("basicBenefit")
-			.and(ifNull("special_benefit").then(Collections.emptyMap())).as("specialBenefit")
-			.and(ifNull("discount_benefit").then(Collections.emptyMap())).as("discountBenefit");
+				.and("_id").as("id")
+				.and("plan_name").as("planName")
+				.and("summary").as("summary")
+				.and("monthly_fee").as("monthlyFee")
+				.and("discount_fee").as("discountFee")
+				.and("data_allowance").as("dataAllowance")
+				.and("voice_allowance").as("voiceAllowance")
+				.and("sms_allowance").as("smsAllowance")
+				.and(ifNull("basic_benefit").then("")).as("basicBenefit")
+				.and(ifNull("special_benefit").then("")).as("specialBenefit")
+				.and(ifNull("discount_benefit").then("")).as("discountBenefit");
 		pipeline.add(project);
 
 		RatePlanDetailResponse result = mongoTemplate.aggregate(
