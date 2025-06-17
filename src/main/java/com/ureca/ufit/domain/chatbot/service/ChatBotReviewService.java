@@ -30,45 +30,54 @@ public class ChatBotReviewService {
 
 	@Value("${llm.base-url}")
 	private String llmBaseUrl;
+	private Set<BanwordFilterPolicy> policies = Set.of(NUMBERS, WHITESPACES);
 
 	private final RestTemplate restTemplate;
 	private final ChatBotReviewRepository chatBotReviewRepository;
 	private final ProfanityService profanityService;
-	private Set<BanwordFilterPolicy> policies = Set.of(NUMBERS, WHITESPACES);
+	private final ChatBotMessageService chatBotMessageService;
+	private final ChatRoomService chatRoomService;
 
 	public CreateChatBotReviewResponse createChatBotReview(CreateChatBotReviewRequest request) {
+		validateCreateChatBotReviewRequest(request);
 
-		validateDuplicatedChatBotReview(request);
+		QuestionSummaryDto questionSummaryDto = requestUserQuerySummary(request);
 
-		validateProfanity(request);
+		createAndSaveChatBotReview(request, questionSummaryDto);
 
+		return ChatBotReviewMapper.toCreateChatBotReviewResponse();
+	}
+
+	private void validateCreateChatBotReviewRequest(CreateChatBotReviewRequest request) {
+		chatRoomService.getValidatedChatRoom(request.chatRoomId());
+		chatBotMessageService.validateMessageBelongsToChatRoom(request.recommendationMessageId(), request.chatRoomId());
+		validateDuplicatedChatBotReview(request.recommendationMessageId());
+		validateProfanity(request.content());
+	}
+
+	private void validateDuplicatedChatBotReview(String recommendationMessageId) {
+		if (chatBotReviewRepository.existsByChatBotMessageId(recommendationMessageId)) {
+			throw new RestApiException(CHAT_BOT_REVIEW_DUPLICATED);
+		}
+	}
+
+	private void validateProfanity(String content) {
+		if (profanityService.containsBannedWord(content, policies)) {
+			throw new RestApiException(CONTENT_RESTRICTED_WORD);
+		}
+	}
+
+	private QuestionSummaryDto requestUserQuerySummary(CreateChatBotReviewRequest request) {
 		final String url = String.format("%s/api/chats/review/%d", llmBaseUrl, request.chatRoomId());
 
 		CreateUserQuerySummaryRequest chatReviewSummaryRequest = new CreateUserQuerySummaryRequest(
-			request.recommendation_message_id());
+			request.recommendationMessageId());
 
 		QuestionSummaryDto questionSummaryDto = restTemplate.postForObject(url, chatReviewSummaryRequest,
 			QuestionSummaryDto.class);
 
 		validateSummary(questionSummaryDto);
-
-		ChatBotReview chatBotReview = ChatBotReviewMapper.toChatBotReview(request, questionSummaryDto);
-
-		chatBotReviewRepository.save(chatBotReview);
-
-		return ChatBotReviewMapper.toCreateChatBotReviewResponse();
-	}
-
-	private void validateDuplicatedChatBotReview(CreateChatBotReviewRequest request) {
-		if (chatBotReviewRepository.existsByChatBotMessageId(request.recommendation_message_id())) {
-			throw new RestApiException(CHAT_BOT_REVIEW_DUPLICATED);
-		}
-	}
-
-	private void validateProfanity(CreateChatBotReviewRequest request) {
-		if (profanityService.containsBannedWord(request.content(), policies)) {
-			throw new RestApiException(CONTENT_RESTRICTED_WORD);
-		}
+		return questionSummaryDto;
 	}
 
 	private void validateSummary(QuestionSummaryDto questionSummaryDto) {
@@ -76,5 +85,11 @@ public class ChatBotReviewService {
 			.map(QuestionSummaryDto::summary)
 			.filter(StringUtils::hasText)
 			.orElseThrow(() -> new RestApiException(LLM_SUMMARY_FAIL));
+	}
+
+	private void createAndSaveChatBotReview(CreateChatBotReviewRequest request, QuestionSummaryDto questionSummaryDto) {
+		ChatBotReview chatBotReview = ChatBotReviewMapper.toChatBotReview(request, questionSummaryDto);
+
+		chatBotReviewRepository.save(chatBotReview);
 	}
 }

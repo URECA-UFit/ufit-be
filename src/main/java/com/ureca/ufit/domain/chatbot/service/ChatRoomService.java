@@ -35,4 +35,9 @@ public class ChatRoomService {
 				return ChatRoomMapper.toChatroomCreateResponse(savedChatRoom);
 			});
 	}
+
+	@Transactional(readOnly = true)
+	public void getValidatedChatRoom(Long chatRoomId) {
+		chatRoomRepository.getById(chatRoomId);
+	}
 }

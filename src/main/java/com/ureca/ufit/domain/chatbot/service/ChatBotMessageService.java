@@ -66,4 +66,10 @@ public class ChatBotMessageService {
 			throw new RestApiException(ChatBotErrorCode.LLM_TIMEOUT);
 		}
 	}
+
+	public void validateMessageBelongsToChatRoom(String chatBotMessage, Long chatRoomId) {
+		if (chatBotMessageRepository.existsByIdAndChatRoomId(chatBotMessage, chatRoomId)) {
+			throw new RestApiException(ChatBotErrorCode.INVALID_CHATBOT_MESSAGE);
+		}
+	}
 }
