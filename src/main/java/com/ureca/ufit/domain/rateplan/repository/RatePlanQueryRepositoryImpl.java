@@ -90,6 +90,8 @@ public class RatePlanQueryRepositoryImpl implements RatePlanQueryRepository {
 			.and("basic_benefit").as("basicBenefit")
 			.and("special_benefit").as("specialBenefit")
 			.and("discount_benefit").as("discountBenefit")
+			.and("is_enabled").as("isEnabled")
+			.and("is_deleted").as("isDeleted")
 			.and("createdAt").as("createdAt");
 
 		pipeline.add(project);
