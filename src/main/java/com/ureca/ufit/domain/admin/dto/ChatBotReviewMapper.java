@@ -28,7 +28,8 @@ public class ChatBotReviewMapper {
 			request.content(),
 			request.rating(),
 			request.recommendPlans(),
-			questionSummaryDto.summary()
+			questionSummaryDto.summary(),
+			request.recommendation_message_id()
 		);
 	}
 }
