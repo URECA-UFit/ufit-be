@@ -4,27 +4,25 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
-import com.ureca.ufit.domain.rateplan.dto.response.RatePlanDetailResponse;
-import com.ureca.ufit.domain.rateplan.dto.response.RatePlanPreviewResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.ureca.ufit.common.fixture.RatePlanFixture;
-import com.ureca.ufit.common.support.DataMongoSupport;
-import com.ureca.ufit.domain.admin.dto.response.AdminRatePlanResponse;
-import com.ureca.ufit.domain.rateplan.repository.RatePlanQueryRepositoryImpl;
-import com.ureca.ufit.domain.rateplan.repository.RatePlanRepository;
-import com.ureca.ufit.entity.RatePlan;
-import com.ureca.ufit.global.dto.CursorPageResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import com.ureca.ufit.common.fixture.RatePlanFixture;
+import com.ureca.ufit.common.support.DataMongoSupport;
+import com.ureca.ufit.domain.admin.dto.response.AdminRatePlanResponse;
+import com.ureca.ufit.domain.rateplan.dto.response.RatePlanDetailResponse;
+import com.ureca.ufit.domain.rateplan.dto.response.RatePlanPreviewResponse;
+import com.ureca.ufit.domain.rateplan.repository.RatePlanQueryRepositoryImpl;
+import com.ureca.ufit.domain.rateplan.repository.RatePlanRepository;
+import com.ureca.ufit.entity.RatePlan;
+import com.ureca.ufit.global.dto.CursorPageResponse;
 
 class RatePlanQueryRepositoryTest extends DataMongoSupport {
 
@@ -167,15 +165,15 @@ class RatePlanQueryRepositoryTest extends DataMongoSupport {
 
 		// when
 		Page<RatePlanPreviewResponse> result =
-				ratePlanQueryRepositoryImpl.getRatePlanPreviews(pageable, "PRICE_DESC");
+			ratePlanQueryRepositoryImpl.getRatePlanPreviews(pageable, "PRICE_DESC");
 
 		// then
 		assertAll(
-				() -> assertThat(result.getContent().size()).isEqualTo(3),
-				() -> assertThat(result.getTotalElements()).isEqualTo(3),
-				() -> assertThat(result.getContent().get(0).planName()).isEqualTo("5G 프리미어"),
-				() -> assertThat(result.getContent().get(1).planName()).isEqualTo("5G 라이트"),
-				() -> assertThat(result.getContent().get(2).planName()).isEqualTo("5G 베이직")
+			() -> assertThat(result.getContent().size()).isEqualTo(3),
+			() -> assertThat(result.getTotalElements()).isEqualTo(3),
+			() -> assertThat(result.getContent().get(0).planName()).isEqualTo("5G 프리미어"),
+			() -> assertThat(result.getContent().get(1).planName()).isEqualTo("5G 라이트"),
+			() -> assertThat(result.getContent().get(2).planName()).isEqualTo("5G 베이직")
 		);
 	}
 
@@ -194,18 +192,17 @@ class RatePlanQueryRepositoryTest extends DataMongoSupport {
 
 		// when
 		Page<RatePlanPreviewResponse> result =
-				ratePlanQueryRepositoryImpl.getRatePlanPreviews(pageable, "PRICE_ASC");
+			ratePlanQueryRepositoryImpl.getRatePlanPreviews(pageable, "PRICE_ASC");
 
 		// then
 		assertAll(
-				() -> assertThat(result.getContent().size()).isEqualTo(3),
-				() -> assertThat(result.getTotalElements()).isEqualTo(3),
-				() -> assertThat(result.getContent().get(0).planName()).isEqualTo("5G 베이직"),
-				() -> assertThat(result.getContent().get(1).planName()).isEqualTo("5G 라이트"),
-				() -> assertThat(result.getContent().get(2).planName()).isEqualTo("5G 프리미어")
+			() -> assertThat(result.getContent().size()).isEqualTo(3),
+			() -> assertThat(result.getTotalElements()).isEqualTo(3),
+			() -> assertThat(result.getContent().get(0).planName()).isEqualTo("5G 베이직"),
+			() -> assertThat(result.getContent().get(1).planName()).isEqualTo("5G 라이트"),
+			() -> assertThat(result.getContent().get(2).planName()).isEqualTo("5G 프리미어")
 		);
 	}
-
 
 	@DisplayName("페이지네이션이 정상적으로 동작한다")
 	@Test
@@ -220,13 +217,13 @@ class RatePlanQueryRepositoryTest extends DataMongoSupport {
 
 		// when
 		Page<RatePlanPreviewResponse> result =
-				ratePlanQueryRepositoryImpl.getRatePlanPreviews(pageable, "PRICE_DESC");
+			ratePlanQueryRepositoryImpl.getRatePlanPreviews(pageable, "PRICE_DESC");
 
 		// then
 		assertAll(
-				() -> assertThat(result.getContent().size()).isEqualTo(2),
-				() -> assertThat(result.getTotalElements()).isEqualTo(3),
-				() -> assertThat(result.hasNext()).isTrue()
+			() -> assertThat(result.getContent().size()).isEqualTo(2),
+			() -> assertThat(result.getTotalElements()).isEqualTo(3),
+			() -> assertThat(result.hasNext()).isTrue()
 		);
 	}
 
@@ -239,13 +236,13 @@ class RatePlanQueryRepositoryTest extends DataMongoSupport {
 
 		// when
 		Page<RatePlanPreviewResponse> result =
-				ratePlanQueryRepositoryImpl.getRatePlanPreviews(pageable, "PRICE_DESC");
+			ratePlanQueryRepositoryImpl.getRatePlanPreviews(pageable, "PRICE_DESC");
 
 		// then
 		assertAll(
-				() -> assertThat(result.getContent().size()).isZero(),
-				() -> assertThat(result.getTotalElements()).isZero(),
-				() -> assertThat(result.hasNext()).isFalse()
+			() -> assertThat(result.getContent().size()).isZero(),
+			() -> assertThat(result.getTotalElements()).isZero(),
+			() -> assertThat(result.hasNext()).isFalse()
 		);
 	}
 
@@ -257,25 +254,24 @@ class RatePlanQueryRepositoryTest extends DataMongoSupport {
 		RatePlan savedPlan = ratePlanRepository.save(plan);
 		String id = savedPlan.getId();
 
-
 		// when
 		Optional<RatePlanDetailResponse> result =
-				ratePlanQueryRepositoryImpl.getRatePlanDetailById(id);
+			ratePlanQueryRepositoryImpl.getRatePlanDetailById(id);
 
 		// then
 		assertThat(result).isPresent();
 		RatePlanDetailResponse detail = result.get();
 
 		assertAll(
-				() -> assertThat(detail.planName()).isEqualTo("5G 프리미어"),
-				() -> assertThat(detail.monthlyFee()).isEqualTo(115000),
-				() -> assertThat(detail.discountFee()).isEqualTo(1000),
-				() -> assertThat(detail.dataAllowance()).isEqualTo("100G"),
-				() -> assertThat(detail.voiceAllowance()).isEqualTo("무제한"),
-				() -> assertThat(detail.smsAllowance()).isEqualTo("무제한"),
-				() -> assertThat(detail.basicBenefit()).containsEntry("benefit", "basic"),
-				() -> assertThat(detail.specialBenefit()).isEmpty(),
-				() -> assertThat(detail.discountBenefit()).isEmpty()
+			() -> assertThat(detail.planName()).isEqualTo("5G 프리미어"),
+			() -> assertThat(detail.monthlyFee()).isEqualTo(115000),
+			() -> assertThat(detail.discountFee()).isEqualTo(1000),
+			() -> assertThat(detail.dataAllowance()).isEqualTo("100G"),
+			() -> assertThat(detail.voiceAllowance()).isEqualTo("무제한"),
+			() -> assertThat(detail.smsAllowance()).isEqualTo("무제한"),
+			() -> assertThat(detail.basicBenefit()).containsEntry("benefit", "basic"),
+			() -> assertThat(detail.specialBenefit()).isEmpty(),
+			() -> assertThat(detail.discountBenefit()).isEmpty()
 		);
 	}
 
@@ -287,7 +283,7 @@ class RatePlanQueryRepositoryTest extends DataMongoSupport {
 
 		// when
 		Optional<RatePlanDetailResponse> result =
-				ratePlanQueryRepositoryImpl.getRatePlanDetailById(fakeId);
+			ratePlanQueryRepositoryImpl.getRatePlanDetailById(fakeId);
 
 		// then
 		assertThat(result).isNotPresent();
