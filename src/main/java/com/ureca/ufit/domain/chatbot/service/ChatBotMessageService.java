@@ -68,7 +68,7 @@ public class ChatBotMessageService {
 	}
 
 	public void validateMessageBelongsToChatRoom(String chatBotMessage, Long chatRoomId) {
-		if (chatBotMessageRepository.existsByIdAndChatRoomId(chatBotMessage, chatRoomId)) {
+		if (!chatBotMessageRepository.existsByIdAndChatRoomId(chatBotMessage, chatRoomId)) {
 			throw new RestApiException(ChatBotErrorCode.INVALID_CHATBOT_MESSAGE);
 		}
 	}
