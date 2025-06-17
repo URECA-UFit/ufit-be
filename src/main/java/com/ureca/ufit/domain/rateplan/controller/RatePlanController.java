@@ -1,6 +1,7 @@
 package com.ureca.ufit.domain.rateplan.controller;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,10 +25,12 @@ public class RatePlanController {
 
 	@GetMapping
 	public ResponseEntity<Page<RatePlanPreviewResponse>> getRatePlans(
-		@RequestParam(value = "type", required = false) String type,
-		Pageable pageable
+			@RequestParam(value = "sortType", required = false) String sortType,
+			@RequestParam(value = "page",     defaultValue = "0")  int page,
+			@RequestParam(value = "size",     defaultValue = "5")  int size
 	) {
-		return ResponseEntity.ok(ratePlanService.getRatePlanList(pageable, type));
+		Pageable pageable = PageRequest.of(page, size);
+		return ResponseEntity.ok(ratePlanService.getRatePlanList(pageable, sortType));
 	}
 
 	@GetMapping("/{rateplanId}")
