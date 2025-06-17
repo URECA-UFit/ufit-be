@@ -85,6 +85,7 @@ public class RatePlanQueryRepositoryImpl implements RatePlanQueryRepository {
 			.and("summary").as("summary")
 			.and("monthly_fee").as("monthlyFee")
 			.and("discount_fee").as("discountFee")
+			.and("data_allowance").as("dataAllowance")
 			.and("voice_allowance").as("voiceAllowance")
 			.and("sms_allowance").as("smsAllowance")
 			.and("basic_benefit").as("basicBenefit")
