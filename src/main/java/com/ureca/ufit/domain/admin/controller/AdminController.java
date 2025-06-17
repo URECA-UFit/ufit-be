@@ -33,14 +33,13 @@ public class AdminController implements AdminControllerApiSpec {
 	}
 
 	@Override
-	public ResponseEntity<CreateRatePlanResponse> createRatePlan(CreateRatePlanRequest createRatePlanRequest) throws
-		JsonProcessingException {
+	public ResponseEntity<CreateRatePlanResponse> createRatePlan(CreateRatePlanRequest createRatePlanRequest) {
 		CreateRatePlanResponse response = adminService.createRatePlan(createRatePlanRequest);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
 	@Override
-	public ResponseEntity<DeleteRatePlanResponse> deleteRatePlan(String ratePlanId) throws JsonProcessingException {
+	public ResponseEntity<DeleteRatePlanResponse> deleteRatePlan(String ratePlanId) {
 		DeleteRatePlanResponse response = adminService.deleteRatePlan(ratePlanId);
 		return ResponseEntity.ok(response);
 	}
