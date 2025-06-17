@@ -35,11 +35,16 @@ public class SecurityConfig {
 
 	private static final String[] USER_AUTH_LIST = {
 		// 인증이 필요한 API 패턴
-		"/api/users/jwt/test"
+		"/api/chats/{chatroomId}"
 	};
 
 	private static final String[] ADMIN_AUTH_LIST = {
 		// 관리자 인증이 필요한 API 패턴
+		"/api/admin/rateplans",
+		"/api/admin/rateplans/{rateplanId}",
+		"/api/admin/rateplans/metrics",
+		"/api/admin/chats/reviews",
+		"/api/admin/rag"
 	};
 
 	private final JwtFilter jwtFilter;
@@ -83,8 +88,8 @@ public class SecurityConfig {
 
 		http
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers(USER_AUTH_LIST).authenticated()
 				.requestMatchers(ADMIN_AUTH_LIST).hasRole(Role.ADMIN.name())
+				.requestMatchers(USER_AUTH_LIST).authenticated()
 				.anyRequest().permitAll());
 
 		http
