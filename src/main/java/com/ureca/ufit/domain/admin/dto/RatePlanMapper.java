@@ -12,6 +12,7 @@ import com.ureca.ufit.domain.admin.dto.response.RatePlanMetricsItem;
 import com.ureca.ufit.domain.admin.dto.response.RatePlanMetricsResponse;
 import com.ureca.ufit.entity.RatePlan;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = PRIVATE)
@@ -37,8 +38,8 @@ public class RatePlanMapper {
 		return new CreateRatePlanResponse(CREATED_MESSAGE);
 	}
 
-	public static DeleteRatePlanResponse toDeleteRateResponse() {
-		return new DeleteRatePlanResponse(DELETED_MESSAGE);
+	public static DeleteRatePlanResponse toDeleteRateResponse(String ratePlanId, boolean isDeleted) {
+		return new DeleteRatePlanResponse(DELETED_MESSAGE, ratePlanId, isDeleted);
 	}
 
 	public static RatePlanMetricsResponse toRatePlanMetricsResponse(
@@ -54,9 +55,9 @@ public class RatePlanMapper {
 				subscriberCountMap.getOrDefault(plan.getId(), 0L).intValue()
 			)).toList();
 
-		int offset = page * size;
+		int offset = (page - 1) * size;
 		boolean hasPrevious = page > 1;
-		boolean hasNext = offset + items.size() < totalCount;
+		boolean hasNext = page * size < totalCount;
 		return new RatePlanMetricsResponse(items, page, size, offset, hasPrevious, hasNext);
 	}
 
