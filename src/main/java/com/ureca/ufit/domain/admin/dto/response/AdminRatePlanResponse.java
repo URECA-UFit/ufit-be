@@ -11,6 +11,8 @@ public record AdminRatePlanResponse(
 	String voiceAllowance,
 	String sms_allowance,
 	String basic_benefit,
+	boolean isEnabled,
+	boolean isDeleted,
 	LocalDateTime createdAt
 ) {
 }
