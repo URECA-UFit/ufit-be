@@ -8,16 +8,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ureca.ufit.domain.admin.dto.RatePlanMapper;
 import com.ureca.ufit.domain.admin.dto.request.CreateRatePlanRequest;
 import com.ureca.ufit.domain.admin.dto.response.AdminRatePlanResponse;
+import com.ureca.ufit.domain.admin.dto.response.CallRatePlanErrorResponse;
 import com.ureca.ufit.domain.admin.dto.response.ChatBotReviewResponse;
 import com.ureca.ufit.domain.admin.dto.response.CreateRatePlanResponse;
 import com.ureca.ufit.domain.admin.dto.response.DeleteRatePlanResponse;
 import com.ureca.ufit.domain.admin.dto.response.RatePlanMetricsResponse;
 import com.ureca.ufit.domain.admin.dto.response.RatePlanStatusResponse;
+import com.ureca.ufit.domain.admin.exception.FastAPIErrorCode;
 import com.ureca.ufit.domain.chatbot.repository.ChatBotReviewRepository;
 import com.ureca.ufit.domain.rateplan.exception.RatePlanErrorCode;
 import com.ureca.ufit.domain.rateplan.repository.RatePlanRepository;
@@ -31,38 +38,108 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class AdminService {
+	@Value("${llm.base-url}")
+	private String llmBaseUrl;
 
 	private final RatePlanRepository ratePlanRepository;
 	private final ChatBotReviewRepository chatBotReviewRepository;
 	private final UserRepository userRepository;
+
+	private final RestTemplate restTemplate;
 
 	public CursorPageResponse<AdminRatePlanResponse> getRatePlansByCursor(String cursor, int size, String type) {
 		return ratePlanRepository.getRatePlansByCursor(cursor, size, type);
 	}
 
 	public CreateRatePlanResponse createRatePlan(CreateRatePlanRequest createRatePlanRequest) {
+
 		RatePlan savedRatePlan = ratePlanRepository.save(RatePlanMapper.toEntity(createRatePlanRequest));
+		String url = String.format("%s/api/admin/rateplans/%s", llmBaseUrl, savedRatePlan.getId());
+
+		try {
+			restTemplate.postForObject(url, createRatePlanRequest, String.class);
+		} catch (HttpStatusCodeException e) {
+			try {
+				ObjectMapper objectMapper = new ObjectMapper();
+				CallRatePlanErrorResponse errorResponse = objectMapper.readValue(
+					e.getResponseBodyAsString(),
+					CallRatePlanErrorResponse.class
+				);
+				if (FastAPIErrorCode.EMBEDDING_CREATE_FAIL.equals(errorResponse.errorCode())) {
+					ratePlanRepository.deleteById(savedRatePlan.getId());
+					throw new RestApiException(FastAPIErrorCode.EMBEDDING_CREATE_FAIL);
+				}
+				throw new RestApiException(errorResponse.errorCode());
+			} catch (Exception parseError) {
+				ratePlanRepository.deleteById(savedRatePlan.getId());
+				throw new RestApiException(FastAPIErrorCode.EMBEDDING_CREATE_FAIL);
+			}
+		} catch (Exception e) {
+			ratePlanRepository.deleteById(savedRatePlan.getId());
+			throw new RestApiException(FastAPIErrorCode.EMBEDDING_CREATE_FAIL);
+		}
+
 		return RatePlanMapper.toCreateRateResponse();
 	}
 
 	public DeleteRatePlanResponse deleteRatePlan(String ratePlanId) {
-		RatePlan ratePlan = ratePlanRepository.findById(ratePlanId)
+		RatePlan findRatePlan = ratePlanRepository.findById(ratePlanId)
 			.orElseThrow(() -> new RestApiException(RatePlanErrorCode.RATE_PLAN_NOT_FOUND)
 			);
 
 		long subscriberCount = userRepository.countByRatePlanId(ratePlanId);
 
-		if (ratePlan.isEnabled()) {
+		if (findRatePlan.isEnabled()) {
 			throw new RestApiException(RatePlanErrorCode.CANNOT_DELETE_WHILE_ENABLED);
 		}
 		if (subscriberCount > 0) {
 			throw new RestApiException(RatePlanErrorCode.CANNOT_DELETE_WITH_SUBSCRIBERS);
 		}
 
-		ratePlan.updateDeleteStatus();
-		ratePlanRepository.save(ratePlan);
+		findRatePlan.updateDeleteStatus();
+		ratePlanRepository.save(findRatePlan);
 
-		return RatePlanMapper.toDeleteRateResponse();
+		String url = String.format("%s/api/admin/rateplans/%s", llmBaseUrl, ratePlanId);
+
+		callDeleteRatePlanApi(url, findRatePlan);
+
+		return RatePlanMapper.toDeleteRateResponse(findRatePlan.getId(), findRatePlan.isDeleted());
+	}
+
+	private void callDeleteRatePlanApi(String url, RatePlan ratePlan) {
+
+		try {
+			restTemplate.delete(url);
+		} catch (HttpStatusCodeException e) {
+			try {
+				ObjectMapper objectMapper = new ObjectMapper();
+				CallRatePlanErrorResponse errorResponse = objectMapper.readValue(
+					e.getResponseBodyAsString(),
+					CallRatePlanErrorResponse.class
+				);
+
+				if (FastAPIErrorCode.RATE_PLAN_NOT_FOUND.equals(errorResponse.errorCode())) {
+					return;
+				}
+
+				if (FastAPIErrorCode.EMBEDDING_DELETE_FAIL.equals(errorResponse.errorCode())) {
+					ratePlan.updateDeleteStatus();
+					ratePlanRepository.save(ratePlan);
+					throw new RestApiException(FastAPIErrorCode.EMBEDDING_DELETE_FAIL);
+				}
+
+				throw new RestApiException(errorResponse.errorCode());
+
+			} catch (Exception remainError) {
+				ratePlan.updateDeleteStatus();
+				ratePlanRepository.save(ratePlan);
+				throw new RestApiException(FastAPIErrorCode.EMBEDDING_DELETE_FAIL);
+			}
+		} catch (Exception unexpectedError) {
+			ratePlan.updateDeleteStatus();
+			ratePlanRepository.save(ratePlan);
+			throw new RestApiException(FastAPIErrorCode.EMBEDDING_DELETE_FAIL);
+		}
 	}
 
 	public RatePlanMetricsResponse getRatePlanMetrics(int page, int size) {

@@ -21,13 +21,19 @@ public record CreateRatePlanRequest(
 	String voice_allowance,
 	@Schema(description = "문자 설명", example = "기본제공")
 	String sms_allowance,
-	@Schema(description = "기본 혜택", example = "U+ 모바일 TV 라이트 무료")
+	@Schema
+		(description = "기본 혜택", example = "{ \"name\": \"U+ 모바일 TV\", \"description\": \"U+ 모바일 TV 기본 월정액 무료\"}")
 	@JsonProperty("basic_benefit")
 	Map<String, Object> basic_benefit,
-	@Schema(description = "특별 혜택", example = "로밍 혜택 프로모션")
+	@Schema
+		(description = "특별 혜택",
+		example = "{ \"name\": \"프리미엄 서비스 기본 제공(택1)\", "
+			+ "\"description\": \"삼성팩, 애플디바이스팩, 멀티팩(아이들나라 스탠다드+러닝, 바이브 음악감상, 지니뮤직 음악감상, 밀리의 서재 중 1개 선택)\"}")
 	@JsonProperty("special_benefit")
 	Map<String, Object> special_benefit,
-	@Schema(description = "할인 혜택", example = "U+투게더 결합 (U+ 휴대폰을 쓰는 친구...")
+	@Schema
+		(description = "할인 혜택",
+		example = "{ \"name\": \"U+투게더 결합\", \"description\": \"U+ 휴대폰을 쓰는 친구와 함께 가입하면 추가 할인을 받을 수 있습니다.\"}")
 	@JsonProperty("discount_benefit")
 	Map<String, Object> discount_benefit
 ) {

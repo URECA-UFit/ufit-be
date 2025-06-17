@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ureca.ufit.domain.admin.dto.request.CreateRatePlanRequest;
 import com.ureca.ufit.domain.admin.dto.response.AdminRatePlanResponse;
 import com.ureca.ufit.domain.admin.dto.response.ChatBotReviewResponse;
@@ -75,7 +76,7 @@ public interface AdminControllerApiSpec {
 	public ResponseEntity<CreateRatePlanResponse> createRatePlan(
 		@Parameter(description = "요금제 정보", required = true)
 		@RequestBody CreateRatePlanRequest createRatePlanRequest
-	);
+	) throws JsonProcessingException;
 
 	@Operation(summary = "요금제 삭제", description = "요금제를 논리적으로 삭제한다.")
 	@ApiResponses({
@@ -88,7 +89,7 @@ public interface AdminControllerApiSpec {
 	public ResponseEntity<DeleteRatePlanResponse> deleteRatePlan(
 		@Parameter(description = "요금제 ID", required = true, example = "665f3af6d6795e4f5e8e5a12")
 		@PathVariable String ratePlanId
-	);
+	) throws JsonProcessingException;
 
 	@Operation(
 		summary = "챗봇 리뷰 목록 조회",
