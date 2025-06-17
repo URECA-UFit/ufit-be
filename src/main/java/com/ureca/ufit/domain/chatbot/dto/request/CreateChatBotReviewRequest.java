@@ -40,6 +40,6 @@ public record CreateChatBotReviewRequest(
 
 	@NotBlank
 	@Schema(description = "리뷰에 해당하는 추천 요금제 메시지ID", example = "684d9a790eea0b57af47a8d1")
-	String recommendation_message_id
+	String recommendationMessageId
 ) {
 }
