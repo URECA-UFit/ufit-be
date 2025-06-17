@@ -30,28 +30,22 @@ public class ChatBotMessageRepositoryImpl implements ChatBotMessageRepositoryCus
 	private final MongoTemplate mongoTemplate;
 
 	@Override
-	public CursorPageResponse<ChatMessageDto> findMessagesPage(ChatRoom chatRoom, Pageable pageable,
-		String lastMessageId) {
+	public CursorPageResponse<ChatMessageDto> findMessagesPage(ChatRoom chatRoom, Pageable pageable, String lastMessageId) {
 		List<AggregationOperation> pipeline = new ArrayList<>();
 
 		Criteria criteria = Criteria.where(FIELD_CHAT_ROOM_ID).is(chatRoom.getId());
 		if (lastMessageId != null && !lastMessageId.isBlank()) {
 			criteria = criteria.and(FIELD_ID).lt(new ObjectId(lastMessageId));
 		}
-		MatchOperation match = Aggregation.match(criteria);
-		pipeline.add(match);
-
-		Sort.Order primary = Sort.Order.desc(FIELD_ID);
-		pipeline.add(Aggregation.sort(Sort.by(primary)));
+		pipeline.add(Aggregation.match(criteria));
+		pipeline.add(Aggregation.sort(Sort.by(Sort.Order.desc(FIELD_ID))));
 		pipeline.add(Aggregation.limit(pageable.getPageSize() + 1));
-
-		ProjectionOperation project = Aggregation.project()
+		pipeline.add(Aggregation.project()
 			.and("_id").as("messageId")
 			.and("content").as("content")
 			.and("owner").as("owner")
-			.and("a_plan_id").as("aPlanId")
-			.and("b_plan_id").as("bPlanId");
-		pipeline.add(project);
+			.and("recommend_plan").as("recommendPlans")
+		);
 
 		Aggregation aggregation = Aggregation.newAggregation(pipeline);
 		AggregationResults<ChatMessageDto> results = mongoTemplate.aggregate(
@@ -66,8 +60,8 @@ public class ChatBotMessageRepositoryImpl implements ChatBotMessageRepositoryCus
 			messages = messages.subList(0, pageable.getPageSize());
 		}
 
-		String nextCursor = hasNext ? messages.get(messages.size() - 1).messageId() : null;
+		ObjectId nextCursor = hasNext ? messages.get(messages.size() - 1).messageId() : null;
 
-		return new CursorPageResponse<>(messages, nextCursor, hasNext);
+		return new CursorPageResponse<>(messages, nextCursor != null ? nextCursor.toHexString() : null, hasNext);
 	}
 }
