@@ -49,6 +49,16 @@ public class AdminService {
 		RatePlan ratePlan = ratePlanRepository.findById(ratePlanId)
 			.orElseThrow(() -> new RestApiException(RatePlanErrorCode.RATE_PLAN_NOT_FOUND)
 			);
+
+		long subscriberCount = userRepository.countByRatePlanId(ratePlanId);
+
+		if (ratePlan.isEnabled()) {
+			throw new RestApiException(RatePlanErrorCode.CANNOT_DELETE_WHILE_ENABLED);
+		}
+		if (subscriberCount > 0) {
+			throw new RestApiException(RatePlanErrorCode.CANNOT_DELETE_WITH_SUBSCRIBERS);
+		}
+
 		ratePlan.updateDeleteStatus();
 		ratePlanRepository.save(ratePlan);
 
