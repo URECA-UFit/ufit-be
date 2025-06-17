@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ChatMessageDto(
-	ObjectId messageId,
+	String messageId,
 	String content,
 	Boolean owner,
 	List<PlanDto> recommendPlans

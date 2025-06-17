@@ -60,8 +60,8 @@ public class ChatBotMessageRepositoryImpl implements ChatBotMessageRepositoryCus
 			messages = messages.subList(0, pageable.getPageSize());
 		}
 
-		ObjectId nextCursor = hasNext ? messages.get(messages.size() - 1).messageId() : null;
+		String nextCursor = hasNext ? messages.get(messages.size() - 1).messageId() : null;
 
-		return new CursorPageResponse<>(messages, nextCursor != null ? nextCursor.toHexString() : null, hasNext);
+		return new CursorPageResponse<>(messages, nextCursor, hasNext);
 	}
 }
