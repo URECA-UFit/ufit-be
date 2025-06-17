@@ -12,8 +12,8 @@ public record RatePlanDetailResponse(
 	String voiceAllowance,
 	String smsAllowance,
 
-	Map<String, Object> basicBenefit,
-	Map<String, Object> specialBenefit,
-	Map<String, Object> discountBenefit
+	String basicBenefit,
+	String specialBenefit,
+	String discountBenefit
 ) {
 }
