@@ -35,13 +35,13 @@ public class SecurityConfig {
 
 	private static final String[] USER_AUTH_LIST = {
 		// 인증이 필요한 API 패턴
-		"/api/chats/{chatroomId}"
+		"/api/chats/{chatroomId:\\d+}"
 	};
 
 	private static final String[] ADMIN_AUTH_LIST = {
 		// 관리자 인증이 필요한 API 패턴
 		"/api/admin/rateplans",
-		"/api/admin/rateplans/{rateplanId}",
+		"/api/admin/rateplans/{rateplanId:\\d+}",
 		"/api/admin/rateplans/metrics",
 		"/api/admin/chats/reviews",
 		"/api/admin/rag"
