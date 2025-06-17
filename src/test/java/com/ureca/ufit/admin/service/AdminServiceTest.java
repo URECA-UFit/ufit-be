@@ -13,7 +13,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ureca.ufit.common.fixture.RatePlanFixture;
 import com.ureca.ufit.domain.admin.dto.response.DeleteRatePlanResponse;
 import com.ureca.ufit.domain.admin.dto.response.RatePlanStatusResponse;
@@ -31,6 +33,9 @@ class AdminServiceTest {
 	private static final String PLAN_ID = "plan-123";
 
 	@Mock
+	RestTemplate restTemplate;
+
+	@Mock
 	RatePlanRepository ratePlanRepository;
 
 	@Mock
@@ -42,7 +47,7 @@ class AdminServiceTest {
 	@InjectMocks
 	AdminService adminService;
 
-	@DisplayName("삭제되지 않고 판매 중인 요금제를 판매 중지시킨다.")
+	@DisplayName("삭제되지 않고 판매 중인 요금Î제를 판매 중지시킨다.")
 	@Test
 	void pauseSalesWhenRatePlanIsSellingAndNotDeleted() {
 		// given
@@ -84,12 +89,13 @@ class AdminServiceTest {
 
 	@DisplayName("판매중지이며 가입자가 한 명도 없을 때 요금제를 삭제한다.")
 	@Test
-	void deleteRatePlan() {
+	void deleteRatePlan() throws JsonProcessingException {
 		// given
 		RatePlan plan = RatePlanFixture.ratePlan("테스트플랜", false, false);
 		ReflectionTestUtils.setField(plan, "id", PLAN_ID);
 		given(ratePlanRepository.findById(PLAN_ID)).willReturn(Optional.of(plan));
 		given(userRepository.countByRatePlanId(PLAN_ID)).willReturn(0L);
+		doNothing().when(restTemplate).delete(anyString());
 
 		// when
 		DeleteRatePlanResponse response = adminService.deleteRatePlan(PLAN_ID);
