@@ -1,8 +1,10 @@
 package com.ureca.ufit.domain.chatbot.service;
 
 import static com.ureca.ufit.domain.chatbot.exception.ChatBotErrorCode.*;
+import static com.ureca.ufit.global.profanity.BanwordFilterPolicy.*;
 
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,8 @@ import com.ureca.ufit.domain.chatbot.dto.response.QuestionSummaryDto;
 import com.ureca.ufit.domain.chatbot.repository.ChatBotReviewRepository;
 import com.ureca.ufit.entity.ChatBotReview;
 import com.ureca.ufit.global.exception.RestApiException;
+import com.ureca.ufit.global.profanity.BanwordFilterPolicy;
+import com.ureca.ufit.global.profanity.ProfanityService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,8 +33,14 @@ public class ChatBotReviewService {
 
 	private final RestTemplate restTemplate;
 	private final ChatBotReviewRepository chatBotReviewRepository;
+	private final ProfanityService profanityService;
+	private Set<BanwordFilterPolicy> policies = Set.of(NUMBERS, WHITESPACES);
 
 	public CreateChatBotReviewResponse createChatBotReview(CreateChatBotReviewRequest request) {
+
+		validateDuplicatedChatBotReview(request);
+
+		validateProfanity(request);
 
 		final String url = String.format("%s/api/chats/review/%d", llmBaseUrl, request.chatRoomId());
 
@@ -47,6 +57,18 @@ public class ChatBotReviewService {
 		chatBotReviewRepository.save(chatBotReview);
 
 		return ChatBotReviewMapper.toCreateChatBotReviewResponse();
+	}
+
+	private void validateDuplicatedChatBotReview(CreateChatBotReviewRequest request) {
+		if (chatBotReviewRepository.existsByChatBotMessageId(request.recommendation_message_id())) {
+			throw new RestApiException(CHAT_BOT_REVIEW_DUPLICATED);
+		}
+	}
+
+	private void validateProfanity(CreateChatBotReviewRequest request) {
+		if (profanityService.containsBannedWord(request.content(), policies)) {
+			throw new RestApiException(CONTENT_RESTRICTED_WORD);
+		}
 	}
 
 	private void validateSummary(QuestionSummaryDto questionSummaryDto) {
