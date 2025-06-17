@@ -80,9 +80,9 @@ class AdminServiceTest {
 		assertThatThrownBy(() -> adminService.updateRatePlanSalesStatus(id))
 			.isInstanceOf(RestApiException.class)
 			.hasMessage(RatePlanErrorCode.RATE_PLAN_ALREADY_DELETED.getMessage());
-  }
+	}
 
-  @DisplayName("판매중지이며 가입자가 한 명도 없을 때 요금제를 삭제한다.")
+	@DisplayName("판매중지이며 가입자가 한 명도 없을 때 요금제를 삭제한다.")
 	@Test
 	void deleteRatePlan() {
 		// given

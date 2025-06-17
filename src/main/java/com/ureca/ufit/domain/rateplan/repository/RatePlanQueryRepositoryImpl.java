@@ -1,6 +1,12 @@
 package com.ureca.ufit.domain.rateplan.repository;
 
-import java.util.*;
+import static org.springframework.data.mongodb.core.aggregation.ConditionalOperators.IfNull.*;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
@@ -17,12 +23,9 @@ import org.springframework.stereotype.Repository;
 import com.ureca.ufit.domain.admin.dto.response.AdminRatePlanResponse;
 import com.ureca.ufit.domain.rateplan.dto.response.RatePlanDetailResponse;
 import com.ureca.ufit.domain.rateplan.dto.response.RatePlanPreviewResponse;
-import com.ureca.ufit.entity.RatePlan;
 import com.ureca.ufit.global.dto.CursorPageResponse;
 
 import lombok.RequiredArgsConstructor;
-
-import static org.springframework.data.mongodb.core.aggregation.ConditionalOperators.IfNull.ifNull;
 
 @Repository
 @RequiredArgsConstructor
@@ -87,6 +90,8 @@ public class RatePlanQueryRepositoryImpl implements RatePlanQueryRepository {
 			.and("basic_benefit").as("basicBenefit")
 			.and("special_benefit").as("specialBenefit")
 			.and("discount_benefit").as("discountBenefit")
+			.and("is_enabled").as("isEnabled")
+			.and("is_deleted").as("isDeleted")
 			.and("createdAt").as("createdAt");
 
 		pipeline.add(project);
@@ -161,7 +166,7 @@ public class RatePlanQueryRepositoryImpl implements RatePlanQueryRepository {
 	@Override
 	public Page<RatePlanPreviewResponse> getRatePlanPreviews(Pageable pageable, String sortType) {
 		Criteria criteria = Criteria.where(IS_ENABLED).is(true)
-				.and(IS_DELETED).is(false);
+			.and(IS_DELETED).is(false);
 
 		Sort sort;
 		if (PRICE_DESC.equalsIgnoreCase(sortType)) {
@@ -170,10 +175,8 @@ public class RatePlanQueryRepositoryImpl implements RatePlanQueryRepository {
 			sort = Sort.by("monthly_fee").ascending();
 		}
 
-
 		Query countQuery = new Query(criteria);
 		long total = mongoTemplate.count(countQuery, RATE_PLANS);
-
 
 		List<AggregationOperation> pipeline = new ArrayList<>();
 		pipeline.add(Aggregation.match(criteria));
@@ -181,18 +184,17 @@ public class RatePlanQueryRepositoryImpl implements RatePlanQueryRepository {
 		pipeline.add(Aggregation.skip(pageable.getOffset()));
 		pipeline.add(Aggregation.limit(pageable.getPageSize()));
 
-
 		AggregationOperation project = Aggregation.project()
-				.and("_id").as("id")
-				.and("plan_name").as("planName")
-				.and("monthly_fee").as("monthlyFee")
-				.and("discount_fee").as("discountFee");
+			.and("_id").as("id")
+			.and("plan_name").as("planName")
+			.and("monthly_fee").as("monthlyFee")
+			.and("discount_fee").as("discountFee");
 		pipeline.add(project);
 
 		List<RatePlanPreviewResponse> results = mongoTemplate.aggregate(
-				Aggregation.newAggregation(pipeline),
-				RATE_PLANS,
-				RatePlanPreviewResponse.class
+			Aggregation.newAggregation(pipeline),
+			RATE_PLANS,
+			RatePlanPreviewResponse.class
 		).getMappedResults();
 
 		return new PageImpl<>(results, pageable, total);
@@ -201,8 +203,8 @@ public class RatePlanQueryRepositoryImpl implements RatePlanQueryRepository {
 	@Override
 	public Optional<RatePlanDetailResponse> getRatePlanDetailById(String id) {
 		Criteria criteria = Criteria.where("_id").is(new ObjectId(id))
-				.and(IS_ENABLED).is(true)
-				.and(IS_DELETED).is(false);
+			.and(IS_ENABLED).is(true)
+			.and(IS_DELETED).is(false);
 
 		List<AggregationOperation> pipeline = new ArrayList<>();
 		pipeline.add(Aggregation.match(criteria));
@@ -222,9 +224,9 @@ public class RatePlanQueryRepositoryImpl implements RatePlanQueryRepository {
 		pipeline.add(project);
 
 		RatePlanDetailResponse result = mongoTemplate.aggregate(
-				Aggregation.newAggregation(pipeline),
-				RATE_PLANS,
-				RatePlanDetailResponse.class
+			Aggregation.newAggregation(pipeline),
+			RATE_PLANS,
+			RatePlanDetailResponse.class
 		).getUniqueMappedResult();
 
 		return Optional.ofNullable(result);

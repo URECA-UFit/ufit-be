@@ -7,5 +7,6 @@ import com.ureca.ufit.entity.ChatBotReview;
 
 @Repository
 public interface ChatBotReviewRepository extends MongoRepository<ChatBotReview, String>, ChatBotReviewQueryRepository {
+	boolean existsByChatBotMessageId(String chatBotMessageId);
 }
 

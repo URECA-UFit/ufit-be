@@ -16,7 +16,9 @@ public class ChatBotReviewFixture {
 			"추천 퀄리티가 너무 좋아서…",
 			rating,
 			recommendPlan,
-			"넉넉한 데이터로 마음놓고 사용가능한 요금제");
+			"넉넉한 데이터로 마음놓고 사용가능한 요금제",
+			"chatReview-123"
+		);
 	}
 
 	public static ChatBotReview chatBotReview(String content, String questionSummary) {
@@ -24,7 +26,8 @@ public class ChatBotReviewFixture {
 			content,
 			1,
 			Map.of(),
-			questionSummary
+			questionSummary,
+			"chatReview-123"
 		);
 	}
 }
