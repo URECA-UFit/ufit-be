@@ -218,7 +218,7 @@ public class RatePlanQueryRepositoryImpl implements RatePlanQueryRepository {
 			.and("data_allowance").as("dataAllowance")
 			.and("voice_allowance").as("voiceAllowance")
 			.and("sms_allowance").as("smsAllowance")
-			.and("basic_benefit").as("basicBenefit")
+			.and(ifNull("basic_benefit").then(Collections.emptyMap())).as("basicBenefit")
 			.and(ifNull("special_benefit").then(Collections.emptyMap())).as("specialBenefit")
 			.and(ifNull("discount_benefit").then(Collections.emptyMap())).as("discountBenefit");
 		pipeline.add(project);
