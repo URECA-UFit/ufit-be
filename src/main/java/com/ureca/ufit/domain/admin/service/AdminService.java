@@ -1,6 +1,7 @@
 package com.ureca.ufit.domain.admin.service;
 
 import static com.ureca.ufit.domain.rateplan.exception.RatePlanErrorCode.*;
+import static com.ureca.ufit.entity.enums.DataCategory.*;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -13,9 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ureca.ufit.domain.admin.dto.RatePlanMapper;
+import com.ureca.ufit.domain.admin.dto.request.CallRatePlanRequest;
 import com.ureca.ufit.domain.admin.dto.request.CreateRatePlanRequest;
 import com.ureca.ufit.domain.admin.dto.response.AdminRatePlanResponse;
 import com.ureca.ufit.domain.admin.dto.response.CallRatePlanErrorResponse;
@@ -38,13 +39,17 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class AdminService {
+	private static final String FAST_DATA = "빠른 데이터(다쓰면 최대 5Mbps)";
+	private static final String NORMAL_DATA = "보통 데이터(다쓰면 최대 3Mbps)";
+	private static final String SLOW_DATA = "느린 데이터(다쓰면 최대 1Mbps)";
+	private static final String VERY_SLOW_DATA = "매우 느린 데이터(다쓰면 최대 400Kpbs)";
+
 	@Value("${llm.base-url}")
 	private String llmBaseUrl;
 
 	private final RatePlanRepository ratePlanRepository;
 	private final ChatBotReviewRepository chatBotReviewRepository;
 	private final UserRepository userRepository;
-
 	private final RestTemplate restTemplate;
 
 	public CursorPageResponse<AdminRatePlanResponse> getRatePlansByCursor(String cursor, int size, String type) {
@@ -52,12 +57,16 @@ public class AdminService {
 	}
 
 	public CreateRatePlanResponse createRatePlan(CreateRatePlanRequest createRatePlanRequest) {
-
 		RatePlan savedRatePlan = ratePlanRepository.save(RatePlanMapper.toEntity(createRatePlanRequest));
+		String dataCategory = createDataCategory(createRatePlanRequest.extraData());
+
+		CallRatePlanRequest callRatePlanRequest = RatePlanMapper.toCallRatePlanRequest(createRatePlanRequest,
+			savedRatePlan.getId(), dataCategory);
+
 		String url = String.format("%s/api/admin/rateplans/%s", llmBaseUrl, savedRatePlan.getId());
 
 		try {
-			restTemplate.postForObject(url, createRatePlanRequest, String.class);
+			restTemplate.postForObject(url, callRatePlanRequest, String.class);
 		} catch (HttpStatusCodeException e) {
 			try {
 				ObjectMapper objectMapper = new ObjectMapper();
@@ -80,6 +89,19 @@ public class AdminService {
 		}
 
 		return RatePlanMapper.toCreateRateResponse();
+	}
+
+	private static String createDataCategory(String extraData) {
+		if (FAST_DATA.equals(extraData)) {
+			return FULL.getCategories();
+		} else if (NORMAL_DATA.equals(extraData)) {
+			return FULL.getCategories();
+		} else if (SLOW_DATA.equals(extraData)) {
+			return STANDARD.getCategories();
+		} else if (VERY_SLOW_DATA.equals(extraData)) {
+			return BASIC.getCategories();
+		}
+		return EMPTY.getCategories();
 	}
 
 	public DeleteRatePlanResponse deleteRatePlan(String ratePlanId) {

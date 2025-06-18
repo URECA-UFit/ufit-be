@@ -5,6 +5,7 @@ import static lombok.AccessLevel.*;
 import java.util.List;
 import java.util.Map;
 
+import com.ureca.ufit.domain.admin.dto.request.CallRatePlanRequest;
 import com.ureca.ufit.domain.admin.dto.request.CreateRatePlanRequest;
 import com.ureca.ufit.domain.admin.dto.response.CreateRatePlanResponse;
 import com.ureca.ufit.domain.admin.dto.response.DeleteRatePlanResponse;
@@ -12,7 +13,6 @@ import com.ureca.ufit.domain.admin.dto.response.RatePlanMetricsItem;
 import com.ureca.ufit.domain.admin.dto.response.RatePlanMetricsResponse;
 import com.ureca.ufit.entity.RatePlan;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = PRIVATE)
@@ -27,10 +27,10 @@ public class RatePlanMapper {
 			createRatePlanRequest.summary(),
 			createRatePlanRequest.monthlyFee(),
 			createRatePlanRequest.discountFee(),
-			createRatePlanRequest.data_allowance(),
-			createRatePlanRequest.voice_allowance(),
-			createRatePlanRequest.sms_allowance(),
-			createRatePlanRequest.basic_benefit()
+			createRatePlanRequest.dataAllowance(),
+			createRatePlanRequest.voiceAllowance(),
+			createRatePlanRequest.smsAllowance(),
+			createRatePlanRequest.basicBenefit()
 		);
 	}
 
@@ -61,4 +61,25 @@ public class RatePlanMapper {
 		return new RatePlanMetricsResponse(items, page, size, offset, hasPrevious, hasNext);
 	}
 
+	public static CallRatePlanRequest toCallRatePlanRequest(CreateRatePlanRequest createRatePlanRequest,
+		String ratePlanId, String dataCategory) {
+		return new CallRatePlanRequest(
+			ratePlanId,
+			createRatePlanRequest.planName(),
+			createRatePlanRequest.summary(),
+			createRatePlanRequest.monthlyFee(),
+			createRatePlanRequest.discountFee(),
+			createRatePlanRequest.extraData(),
+			createRatePlanRequest.dataAllowance(),
+			dataCategory,
+			createRatePlanRequest.voiceAllowance(),
+			createRatePlanRequest.smsAllowance(),
+			createRatePlanRequest.basicBenefit(),
+			createRatePlanRequest.discountBenefit(),
+			createRatePlanRequest.specialBenefit(),
+			createRatePlanRequest.deviceType(),
+			createRatePlanRequest.dataSharing(),
+			createRatePlanRequest.socialCategory()
+		);
+	}
 }
