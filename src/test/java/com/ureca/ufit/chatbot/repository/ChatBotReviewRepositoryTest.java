@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
 import java.util.Map;
 
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.ureca.ufit.common.fixture.ChatBotReviewFixture;
 import com.ureca.ufit.common.support.DataMongoSupport;
 import com.ureca.ufit.domain.admin.dto.response.ChatBotReviewResponse;
+import com.ureca.ufit.domain.chatbot.repository.ChatBotReviewQueryRepositoryImpl;
 import com.ureca.ufit.domain.chatbot.repository.ChatBotReviewRepository;
 import com.ureca.ufit.entity.ChatBotReview;
 import com.ureca.ufit.global.dto.CursorPageResponse;
@@ -22,6 +24,9 @@ public class ChatBotReviewRepositoryTest extends DataMongoSupport {
 
 	@Autowired
 	ChatBotReviewRepository chatBotReviewRepository;
+
+	@Autowired
+	ChatBotReviewQueryRepositoryImpl repository = new ChatBotReviewQueryRepositoryImpl(mongoTemplate);
 
 	@AfterEach
 	void tearDown() {
@@ -36,8 +41,8 @@ public class ChatBotReviewRepositoryTest extends DataMongoSupport {
 
 		// recommendPlan 더미 데이터
 		Map<String, Object> dummyPlan = Map.of(
-			"planId", "TEST1",
-			"planName", "테스트 요금제"
+			"aPlan", "aPlan",
+			"bPlan", "bPlan"
 		);
 
 		// Fixture로 생성
@@ -48,6 +53,7 @@ public class ChatBotReviewRepositoryTest extends DataMongoSupport {
 		ChatBotReview r5 = ChatBotReviewFixture.chatBotReview(1, dummyPlan);
 
 		chatBotReviewRepository.saveAll(List.of(r1, r2, r3, r4, r5));
+		List<ChatBotReview> reviews = chatBotReviewRepository.findAll();
 
 		// when
 		CursorPageResponse<ChatBotReviewResponse> page1 =
