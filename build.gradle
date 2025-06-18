@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.12'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'jacoco'
 }
 
 group = 'com.ureca'
@@ -21,6 +22,62 @@ configurations {
 
 repositories {
     mavenCentral()
+}
+
+def QDomains = ["**/entity/Q*.class"]
+
+jacoco {
+    toolVersion = "0.8.12"
+    reportsDirectory = layout.buildDirectory.dir('jacocoReport')
+}
+
+jacocoTestReport {
+    dependsOn test
+
+    classDirectories.setFrom(files(classDirectories.files.collect {
+        fileTree(dir: it, excludes: [
+                '**/*Application*',
+                '**/exception/**',
+                '**/config/**',
+                '**/dto/**',
+                '**/auth/**',
+                '**/global/**',
+                '**/entity/**'
+        ] + QDomains)
+    }))
+
+    reports {
+        html.required.set(true)
+        xml.required.set(true)
+        csv.required.set(true)
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            enabled = true
+            element = 'CLASS'
+
+            limit {
+                counter = 'LINE'
+                value = 'COVERERDRATIO'
+                minimum = 0.65
+            }
+        }
+
+        rule {
+            excludes = [
+                    '**/*Application*',
+                    '**/exception/**',
+                    '**/config/**',
+                    '**/dto/**',
+                    '**/auth/**',
+                    '**/global/**',
+                    '**/entity/**'
+            ] + QDomains
+        }
+    }
 }
 
 dependencies {
@@ -75,4 +132,5 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy 'jacocoTestReport' // test 태스크가 끝난 후 실행
 }
