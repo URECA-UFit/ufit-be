@@ -186,10 +186,10 @@ public class RatePlanQueryRepositoryImpl implements RatePlanQueryRepository {
 		pipeline.add(Aggregation.limit(pageable.getPageSize()));
 
 		AggregationOperation project = Aggregation.project()
-			.and("_id").as("id")
+			.and("_id").as("ratePlanId")
 			.and("plan_name").as("planName")
 			.and("monthly_fee").as("monthlyFee")
-			.and("discount_fee").as("discountFee");
+			.and(ifNull("discount_fee").then(0)).as("discountFee");
 		pipeline.add(project);
 
 		List<RatePlanPreviewResponse> results = mongoTemplate.aggregate(
@@ -211,11 +211,11 @@ public class RatePlanQueryRepositoryImpl implements RatePlanQueryRepository {
 		pipeline.add(Aggregation.match(criteria));
 
 		AggregationOperation project = Aggregation.project()
-			.and("_id").as("id")
+			.and("_id").as("ratePlanId")
 			.and("plan_name").as("planName")
 			.and("summary").as("summary")
 			.and("monthly_fee").as("monthlyFee")
-			.and("discount_fee").as("discountFee")
+			.and(ifNull("discount_fee").then((Integer)null)).as("discountFee")
 			.and("data_allowance").as("dataAllowance")
 			.and("voice_allowance").as("voiceAllowance")
 			.and("sms_allowance").as("smsAllowance")

@@ -3,7 +3,7 @@ package com.ureca.ufit.domain.rateplan.dto.response;
 import java.util.Map;
 
 public record RatePlanDetailResponse(
-	String id,
+	String ratePlanId,
 	String planName,
 	String summary,
 	int monthlyFee,
