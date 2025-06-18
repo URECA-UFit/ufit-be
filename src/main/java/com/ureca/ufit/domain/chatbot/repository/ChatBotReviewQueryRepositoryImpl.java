@@ -1,6 +1,9 @@
 package com.ureca.ufit.domain.chatbot.repository;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
@@ -20,40 +23,56 @@ import lombok.RequiredArgsConstructor;
 public class ChatBotReviewQueryRepositoryImpl implements ChatBotReviewQueryRepository {
 
 	private static final String COLLECTION = "chat_bot_reviews";
-	private static final String CREATED_AT = "createdAt";
 	private final MongoTemplate mongoTemplate;
 
 	public CursorPageResponse<ChatBotReviewResponse> getChatBotReviewByCursor(
 		String cursor, int size) {
 
-		// 1) cursor(null)이면 전체, 아니면 _id < cursor 조건
 		Criteria criteria = new Criteria();
 		if (cursor != null && !cursor.isBlank()) {
 			criteria = Criteria.where("_id").lt(new ObjectId(cursor));
 		}
 
-		// 2) DESC 정렬(_id 기준) + size+1 로 조회
 		Query query = new Query(criteria)
 			.with(Sort.by(Sort.Direction.DESC, "_id"))
 			.limit(size + 1);
 
-		// 3) 실제 도큐먼트 조회
-		List<ChatBotReview> docs = mongoTemplate.find(query, ChatBotReview.class);
+		List<ChatBotReview> docs = mongoTemplate.find(query, ChatBotReview.class, COLLECTION);
 
-		// 4) hasNext, 실제 items 자르기
 		boolean hasNext = docs.size() > size;
-		List<ChatBotReviewResponse> items = docs.stream()
-			.limit(size)
-			.map(e -> new ChatBotReviewResponse(
-				e.getId(),                           // chatBotReviewId
-				e.getQuestionSummary(),              // questionSummery
-				e.getRecommendPlan().toString(),     // recommendPlan (String 타입)
-				e.getRating(),                       // rate
-				e.getContent()
-			))
-			.toList();
+		List<ChatBotReviewResponse> items = new ArrayList<>();
 
-		// 5) nextCursor는 마지막 아이템의 id
+		for (int i = 0; i < Math.min(size, docs.size()) ; i++) {
+			ChatBotReview review = docs.get(i);
+
+			String recommendPlanString = "";
+			Map<String, Object> recommendPlanMap = review.getRecommendPlan();
+
+			if (recommendPlanMap != null && !recommendPlanMap.isEmpty()) {
+				String aPlan = Optional.ofNullable(recommendPlanMap.get("aPlan"))
+					.map(Object::toString)
+					.orElse("");
+				String bPlan = Optional.ofNullable(recommendPlanMap.get("bPlan"))
+					.map(Object::toString)
+					.orElse("");
+
+				if (!aPlan.isEmpty() && !bPlan.isEmpty()) {
+					recommendPlanString = aPlan + ", " + bPlan;
+				} else if (!aPlan.isEmpty()) {
+					recommendPlanString = aPlan;
+				} else if (!bPlan.isEmpty()) {
+					recommendPlanString = bPlan;
+				}
+			}
+			items.add(new ChatBotReviewResponse(
+				review.getId(),
+				review.getQuestionSummary(),
+				recommendPlanString,
+				review.getRating(),
+				review.getContent()
+			));
+		}
+
 		String nextCursor = hasNext
 			? items.get(items.size() - 1).chatBotReviewId()
 			: null;

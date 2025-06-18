@@ -15,7 +15,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Document(collection = "chat_bot_review")
+@Document(collection = "chat_bot_reviews")
 @Getter
 @NoArgsConstructor(access = PROTECTED)
 public class ChatBotReview extends MongoTimeBaseEntity {
