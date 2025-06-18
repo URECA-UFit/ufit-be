@@ -1,67 +1,59 @@
 package com.ureca.ufit.chatbot.controller;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.BDDMockito.*;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.util.Collections;
-import java.util.List;
-
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Pageable;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import com.ureca.ufit.common.fixture.ChatBotMessageFixture;
+import com.ureca.ufit.common.fixture.ChatRoomFixture;
 import com.ureca.ufit.common.support.ApiSupport;
-import com.ureca.ufit.domain.chatbot.dto.response.ChatMessageDto;
-import com.ureca.ufit.domain.chatbot.dto.response.ChatRoomCreateResponse;
-import com.ureca.ufit.domain.chatbot.service.ChatBotMessageService;
-import com.ureca.ufit.domain.chatbot.service.ChatRoomService;
-import com.ureca.ufit.global.dto.CursorPageResponse;
+import com.ureca.ufit.domain.chatbot.repository.ChatBotMessageRepository;
+import com.ureca.ufit.domain.chatbot.repository.ChatRoomRepository;
+import com.ureca.ufit.entity.ChatBotMessage;
+import com.ureca.ufit.entity.ChatRoom;
 
 class ChatBotControllerTest extends ApiSupport {
 
-	@MockBean
-	ChatRoomService chatRoomService;
+	@Autowired
+	private ChatRoomRepository chatRoomRepository;
 
-	@MockBean
-	ChatBotMessageService chatBotMessageService;
+	@Autowired
+	private ChatBotMessageRepository chatBotMessageRepository;
+
+	@AfterEach
+	void teardown() {
+		chatBotMessageRepository.deleteAll();
+		chatRoomRepository.deleteAll();
+	}
 
 	@DisplayName("이미 존재하는 채팅방이 있으면 ID만 반환한다.")
 	@Test
 	void returnExistingChatRoomId() throws Exception {
 		// given
-		long expectedChatRoomId = 1L;
-		ChatRoomCreateResponse stub =
-			new ChatRoomCreateResponse(expectedChatRoomId, false);
-
-		given(chatRoomService.getOrCreateChatRoom(any())).willReturn(stub);
+		ChatRoom existingChatRoom = chatRoomRepository.save(ChatRoomFixture.chatRoom(2L, loginUser));
 
 		// when // then
 		mockMvc.perform(post("/api/chats/rooms")
-				.contentType(APPLICATION_JSON)
-				.header("Authorization", accessTokenOfUser))
+				.header("Authorization", accessTokenOfUser)
+				.contentType(APPLICATION_JSON))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.chatRoomId").value(expectedChatRoomId))
+			.andExpect(jsonPath("$.chatRoomId").value(existingChatRoom.getId()))
 			.andExpect(jsonPath("$.isAnonymous").value(false));
 	}
 
 	@DisplayName("비회원이 요청하면 새로운 익명 채팅방을 생성한다.")
 	@Test
 	void createAnonymousChatRoomWhenNoToken() throws Exception {
-		// given
-		long newChatRoomId = 2L;
-		ChatRoomCreateResponse stub = new ChatRoomCreateResponse(newChatRoomId, true);
-
-		given(chatRoomService.getOrCreateChatRoom(isNull())).willReturn(stub);
-
 		// when // then
 		mockMvc.perform(post("/api/chats/rooms")
 				.contentType(APPLICATION_JSON))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.chatRoomId").value(newChatRoomId))
+			.andExpect(jsonPath("$.chatRoomId").isNumber())
 			.andExpect(jsonPath("$.isAnonymous").value(true));
 	}
 
@@ -69,22 +61,18 @@ class ChatBotControllerTest extends ApiSupport {
 	@Test
 	void getMessagesWithCursorSuccess() throws Exception {
 		// given
-		Long chatRoomId = 3L;
-		String lastMsgId = "665f3af6d6795e4f5e8e5a12";
+		ChatRoom chatRoom = chatRoomRepository.save(ChatRoomFixture.chatRoom(1L, loginUser));
 
-		ChatMessageDto dto = new ChatMessageDto(lastMsgId, "안녕", true, Collections.emptyList());
-		CursorPageResponse<ChatMessageDto> stub = new CursorPageResponse<>(List.of(dto), null, false);
-
-		given(chatBotMessageService.getChatMessages(eq(chatRoomId), any(Pageable.class), eq(lastMsgId)))
-			.willReturn(stub);
+		ChatBotMessage savedMsg = chatBotMessageRepository.save(
+			ChatBotMessageFixture.chatBotMessage(chatRoom.getId(), null));
 
 		// when // then
-		mockMvc.perform(get("/api/chats/{chatroomId}", chatRoomId)
-				.param("lastMessageId", lastMsgId)
+		mockMvc.perform(get("/api/chats/{chatroomId}", chatRoom.getId())
 				.param("size", "10")
-				.header("Authorization", accessTokenOfUser))
+				.header("Authorization", accessTokenOfUser)
+				.contentType(APPLICATION_JSON))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.item[0].messageId").value(dto.messageId()))
+			.andExpect(jsonPath("$.item[0].messageId").value(savedMsg.getId().toString()))
 			.andExpect(jsonPath("$.hasNext").value(false));
 	}
 }
