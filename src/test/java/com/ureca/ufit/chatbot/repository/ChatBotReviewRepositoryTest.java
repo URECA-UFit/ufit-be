@@ -53,7 +53,6 @@ public class ChatBotReviewRepositoryTest extends DataMongoSupport {
 		ChatBotReview r5 = ChatBotReviewFixture.chatBotReview(1, dummyPlan);
 
 		chatBotReviewRepository.saveAll(List.of(r1, r2, r3, r4, r5));
-		List<ChatBotReview> reviews = chatBotReviewRepository.findAll();
 
 		// when
 		CursorPageResponse<ChatBotReviewResponse> page1 =
