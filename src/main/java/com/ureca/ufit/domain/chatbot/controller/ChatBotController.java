@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class ChaBotController implements ChaBotControllerApiSpec {
+public class ChatBotController implements ChatBotControllerApiSpec {
 
 	private final ChatBotMessageService chatBotMessageService;
 	private final ChatRoomService chatRoomService;
