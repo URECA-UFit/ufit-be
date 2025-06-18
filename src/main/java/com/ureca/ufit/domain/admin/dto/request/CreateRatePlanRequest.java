@@ -36,13 +36,13 @@ public record CreateRatePlanRequest(
 			example = "{ \"name\": \"U+투게더 결합\", \"description\": \"U+ 휴대폰을 쓰는 친구와 함께 가입하면 추가 할인을 받을 수 있습니다.\"}")
 	@JsonProperty("discountBenefit")
 	Map<String, Object> discountBenefit,
-	@Schema(description = "요금제 이름", example = "5G 프리미어 슈퍼")
+	@Schema(description = "데이터량을 다 소모한 경우 추가 데이터", example = "다 쓰면 최대 5Mbps(빠른 데이터)")
 	String extraData,
-	@Schema(description = "요금제 이름", example = "5G 프리미어 슈퍼")
+	@Schema(description = "모바일 외 디바이스 종류", example = "LTE 전용 태블릿, 빔, 액션 캠 등 스마트 기기")
 	String deviceType,
-	@Schema(description = "요금제 이름", example = "5G 프리미어 슈퍼")
+	@Schema(description = "다른 기기 간 데이터 공유", example = "가능(기본 제공량 안에서 테더링+쉐어링 60GB)")
 	String dataSharing,
-	@Schema(description = "요금제 이름", example = "5G 프리미어 슈퍼")
+	@Schema(description = "사회적 위치", example = "senior")
 	String socialCategory
 ) {
 
