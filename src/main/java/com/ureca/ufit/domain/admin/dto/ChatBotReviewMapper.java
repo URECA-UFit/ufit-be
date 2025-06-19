@@ -14,10 +14,6 @@ public class ChatBotReviewMapper {
 
 	private static final String CHAT_REVIEW_SUCCESS_MSG = "리뷰가 정상적으로 제출되었습니다.";
 
-	//    private static ChatBotReviewResponse toChatBotReview(){
-	//        return ;
-	//    }
-
 	public static CreateChatBotReviewResponse toCreateChatBotReviewResponse() {
 		return new CreateChatBotReviewResponse(CHAT_REVIEW_SUCCESS_MSG);
 	}
@@ -28,7 +24,8 @@ public class ChatBotReviewMapper {
 			request.content(),
 			request.rating(),
 			request.recommendPlans(),
-			questionSummaryDto.questionSummary()
+			questionSummaryDto.summary(),
+			request.recommendationMessageId()
 		);
 	}
 }

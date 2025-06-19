@@ -15,7 +15,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Document(collection = "chat_bot_review")
+@Document(collection = "chat_bot_reviews")
 @Getter
 @NoArgsConstructor(access = PROTECTED)
 public class ChatBotReview extends MongoTimeBaseEntity {
@@ -39,21 +39,28 @@ public class ChatBotReview extends MongoTimeBaseEntity {
 	@Field("question_summary")
 	private String questionSummary;
 
+	@NotNull
+	@Field("chat_bot_message_id")
+	private String chatBotMessageId;
+
 	@Builder(access = PRIVATE)
-	private ChatBotReview(String content, int rating, Map<String, Object> recommendPlan, String questionSummary) {
+	private ChatBotReview(String content, int rating, Map<String, Object> recommendPlan, String questionSummary,
+		String chatBotMessageId) {
 		this.content = content;
 		this.rating = rating;
 		this.recommendPlan = recommendPlan;
 		this.questionSummary = questionSummary;
+		this.chatBotMessageId = chatBotMessageId;
 	}
 
 	public static ChatBotReview of(String content, int rating, Map<String, Object> recommendPlan,
-		String questionSummary) {
+		String questionSummary, String chatBotMessageId) {
 		return ChatBotReview.builder()
 			.content(content)
 			.rating(rating)
 			.recommendPlan(recommendPlan)
 			.questionSummary(questionSummary)
+			.chatBotMessageId(chatBotMessageId)
 			.build();
 	}
 

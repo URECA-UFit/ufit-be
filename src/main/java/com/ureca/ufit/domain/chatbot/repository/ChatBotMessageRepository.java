@@ -7,6 +7,7 @@ import com.ureca.ufit.entity.ChatBotMessage;
 
 @Repository
 public interface ChatBotMessageRepository
-	extends MongoRepository<ChatBotMessage, String>, ChatBotMessageRepositoryCustom {
 
+	extends MongoRepository<ChatBotMessage, String>, ChatBotMessageRepositoryCustom {
+	boolean existsByIdAndChatRoomId(String chatBotMessage, Long chatRoomId);
 }

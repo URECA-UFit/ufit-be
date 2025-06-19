@@ -32,7 +32,7 @@ import jakarta.validation.Valid;
 
 @Tag(name = "ChatBot API", description = "챗봇 관련 API")
 @RequestMapping("/api/chats")
-public interface ChaBotControllerApiSpec {
+public interface ChatBotControllerApiSpec {
 
 	@Operation(
 		summary = "챗봇 대화 메시지 목록 조회 API",

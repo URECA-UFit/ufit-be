@@ -37,14 +37,15 @@ public class JwtFilter extends OncePerRequestFilter {
 		"/error", "/favicon.ico", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html",
 		"/api/auth/login",
 		"/api/users/register",
-		"/api/rateplans/storages/**",
-		"/api/auth/reissue/token"
+		"/api/rateplans/storages",
+		"/api/rateplans/storages/{rateplanId}",
+		"/api/auth/reissue/token",
+		"/api/auth/logout"
 	);
 
 	// 비회원이면 JWT검증 필요X, 회원이면  JWT검증 필요
 	private static final List<String> PUBLIC_LIST = List.of(
 		"/api/chats/message",
-		"/api/chats/messages/ai",
 		"/api/chats/review",
 		"/api/chats",
 		"/api/chats/rooms"

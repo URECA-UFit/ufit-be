@@ -1,6 +1,7 @@
 package com.ureca.ufit.domain.admin.dto.response;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 public record AdminRatePlanResponse(
 	String ratePlanId,
@@ -8,9 +9,14 @@ public record AdminRatePlanResponse(
 	String summary,
 	int monthlyFee,
 	int discountFee,
+	String dataAllowance,
 	String voiceAllowance,
-	String sms_allowance,
-	String basic_benefit,
+	String smsAllowance,
+	Map<String, Object> basicBenefit,
+	Map<String, Object> specialBenefit,
+	Map<String, Object> discountBenefit,
+	boolean isEnabled,
+	boolean isDeleted,
 	LocalDateTime createdAt
 ) {
 }

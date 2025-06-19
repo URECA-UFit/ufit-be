@@ -1,13 +1,13 @@
 package com.ureca.ufit.domain.rateplan.repository;
 
+import static org.springframework.data.mongodb.core.aggregation.ConditionalOperators.IfNull.*;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import com.ureca.ufit.domain.rateplan.dto.response.RatePlanDetailResponse;
-import com.ureca.ufit.domain.rateplan.dto.response.RatePlanPreviewResponse;
-import com.ureca.ufit.entity.RatePlan;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -21,6 +21,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
 import com.ureca.ufit.domain.admin.dto.response.AdminRatePlanResponse;
+import com.ureca.ufit.domain.rateplan.dto.response.RatePlanDetailResponse;
+import com.ureca.ufit.domain.rateplan.dto.response.RatePlanPreviewResponse;
 import com.ureca.ufit.global.dto.CursorPageResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -83,11 +85,14 @@ public class RatePlanQueryRepositoryImpl implements RatePlanQueryRepository {
 			.and("summary").as("summary")
 			.and("monthly_fee").as("monthlyFee")
 			.and("discount_fee").as("discountFee")
+			.and("data_allowance").as("dataAllowance")
 			.and("voice_allowance").as("voiceAllowance")
 			.and("sms_allowance").as("smsAllowance")
 			.and("basic_benefit").as("basicBenefit")
 			.and("special_benefit").as("specialBenefit")
 			.and("discount_benefit").as("discountBenefit")
+			.and("is_enabled").as("isEnabled")
+			.and("is_deleted").as("isDeleted")
 			.and("createdAt").as("createdAt");
 
 		pipeline.add(project);
@@ -160,72 +165,70 @@ public class RatePlanQueryRepositoryImpl implements RatePlanQueryRepository {
 	}
 
 	@Override
-	public Page<RatePlan> findEnabledRatePlansWithSort(Pageable pageable, String sortType) {
-		Criteria criteria = Criteria.where(IS_ENABLED).is(true)
-				.and(IS_DELETED).is(false);
-
-		Sort sort;
-		if (NAME_ASC.equalsIgnoreCase(sortType)) {
-			sort = Sort.by("planName").ascending();
-		} else if (NAME_DESC.equalsIgnoreCase(sortType)) {
-			sort = Sort.by("planName").descending();
-		} else if (PRICE_DESC.equalsIgnoreCase(sortType)) {
-			sort = Sort.by("monthlyFee").descending();
-		} else {
-			sort = Sort.by("monthlyFee").ascending();
-		}
-
-		Query query = new Query(criteria)
-				.with(sort)
-				.skip(pageable.getOffset())
-				.limit(pageable.getPageSize());
-
-		List<RatePlan> items = mongoTemplate.find(query, RatePlan.class);
-		long total = items.size();
-
-		return new PageImpl<>(items, pageable, total);
-	}
-
-	@Override
 	public Page<RatePlanPreviewResponse> getRatePlanPreviews(Pageable pageable, String sortType) {
 		Criteria criteria = Criteria.where(IS_ENABLED).is(true)
-				.and(IS_DELETED).is(false);
+			.and(IS_DELETED).is(false);
 
 		Sort sort;
-		if (NAME_ASC.equalsIgnoreCase(sortType)) {
-			sort = Sort.by("plan_name").ascending();
-		} else if (NAME_DESC.equalsIgnoreCase(sortType)) {
-			sort = Sort.by("plan_name").descending();
-		} else if (PRICE_DESC.equalsIgnoreCase(sortType)) {
+		if (PRICE_DESC.equalsIgnoreCase(sortType)) {
 			sort = Sort.by("monthly_fee").descending();
 		} else {
 			sort = Sort.by("monthly_fee").ascending();
 		}
 
-		Query query = new Query(criteria)
-				.with(sort)
-				.skip(pageable.getOffset())
-				.limit(pageable.getPageSize());
+		Query countQuery = new Query(criteria);
+		long total = mongoTemplate.count(countQuery, RATE_PLANS);
 
-		List<RatePlanPreviewResponse> results = mongoTemplate.find(query, RatePlanPreviewResponse.class, RATE_PLANS);
-		long total = results.size();
+		List<AggregationOperation> pipeline = new ArrayList<>();
+		pipeline.add(Aggregation.match(criteria));
+		pipeline.add(Aggregation.sort(sort));
+		pipeline.add(Aggregation.skip(pageable.getOffset()));
+		pipeline.add(Aggregation.limit(pageable.getPageSize()));
+
+		AggregationOperation project = Aggregation.project()
+			.and("_id").as("ratePlanId")
+			.and("plan_name").as("planName")
+			.and("monthly_fee").as("monthlyFee")
+			.and(ifNull("discount_fee").then(0)).as("discountFee");
+		pipeline.add(project);
+
+		List<RatePlanPreviewResponse> results = mongoTemplate.aggregate(
+			Aggregation.newAggregation(pipeline),
+			RATE_PLANS,
+			RatePlanPreviewResponse.class
+		).getMappedResults();
 
 		return new PageImpl<>(results, pageable, total);
 	}
 
 	@Override
 	public Optional<RatePlanDetailResponse> getRatePlanDetailById(String id) {
-		Criteria criteria = Criteria.where("_id").is(id)
-				.and(IS_ENABLED).is(true)
-				.and(IS_DELETED).is(false);
+		Criteria criteria = Criteria.where("_id").is(new ObjectId(id))
+			.and(IS_ENABLED).is(true)
+			.and(IS_DELETED).is(false);
 
-		Query query = new Query(criteria);
+		List<AggregationOperation> pipeline = new ArrayList<>();
+		pipeline.add(Aggregation.match(criteria));
 
-		RatePlanDetailResponse result = mongoTemplate.findOne(
-				query,
-				RatePlanDetailResponse.class,
-				"rate_plans"
-		);
+		AggregationOperation project = Aggregation.project()
+			.and("_id").as("ratePlanId")
+			.and("plan_name").as("planName")
+			.and("summary").as("summary")
+			.and("monthly_fee").as("monthlyFee")
+			.and(ifNull("discount_fee").then((Integer)null)).as("discountFee")
+			.and("data_allowance").as("dataAllowance")
+			.and("voice_allowance").as("voiceAllowance")
+			.and("sms_allowance").as("smsAllowance")
+			.and(ifNull("basic_benefit").then(Collections.emptyMap())).as("basicBenefit")
+			.and(ifNull("special_benefit").then(Collections.emptyMap())).as("specialBenefit")
+			.and(ifNull("discount_benefit").then(Collections.emptyMap())).as("discountBenefit");
+		pipeline.add(project);
+
+		RatePlanDetailResponse result = mongoTemplate.aggregate(
+			Aggregation.newAggregation(pipeline),
+			RATE_PLANS,
+			RatePlanDetailResponse.class
+		).getUniqueMappedResult();
 
 		return Optional.ofNullable(result);
 	}

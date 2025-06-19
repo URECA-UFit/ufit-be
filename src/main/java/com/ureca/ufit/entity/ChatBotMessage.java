@@ -2,6 +2,8 @@ package com.ureca.ufit.entity;
 
 import static lombok.AccessLevel.*;
 
+import java.util.Map;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -29,31 +31,27 @@ public class ChatBotMessage extends MongoTimeBaseEntity {
 	@Field("owner")
 	private boolean owner;
 
-	@Field("a_plan_id")
-	private Long aPlanId;
-
-	@Field("b_plan_id")
-	private Long bPlanId;
+	@NotNull
+	@Field("recommend_plan")
+	private Map<String, Object> recommendPlan;
 
 	@NotNull
 	@Field("chat_room_id")
 	private Long chatRoomId;
 
 	@Builder(access = PRIVATE)
-	private ChatBotMessage(String content, boolean owner, Long aPlanId, Long bPlanId, Long chatRoomId) {
+	private ChatBotMessage(String content, boolean owner, Map<String, Object> recommendPlan, Long chatRoomId) {
 		this.content = content;
 		this.owner = owner;
-		this.aPlanId = aPlanId;
-		this.bPlanId = bPlanId;
+		this.recommendPlan = recommendPlan;
 		this.chatRoomId = chatRoomId;
 	}
 
-	public static ChatBotMessage of(String content, boolean owner, Long aPlanId, Long bPlanId, Long chatRoomId) {
+	public static ChatBotMessage of(String content, boolean owner, Map<String, Object> recommendPlan, Long chatRoomId) {
 		return ChatBotMessage.builder()
 			.content(content)
 			.owner(owner)
-			.aPlanId(aPlanId)
-			.bPlanId(bPlanId)
+			.recommendPlan(recommendPlan)
 			.chatRoomId(chatRoomId)
 			.build();
 	}
