@@ -1,5 +1,7 @@
 package com.ureca.ufit.domain.chatbot.controller;
 
+import java.util.concurrent.CompletableFuture;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,12 +52,14 @@ public class ChatBotController implements ChatBotControllerApiSpec {
 	}
 
 	@Override
-	public ResponseEntity<CreateChatBotMessageResponse> createChatBotMessage(CustomUserDetails userDetails,
+	public ResponseEntity<CompletableFuture<CreateChatBotMessageResponse>> createChatBotMessage(
+		CustomUserDetails userDetails,
 		CreateChatBotMessageRequest request) {
 
 		Long userId = (userDetails != null) ? userDetails.userId() : nonUserId;
 
-		CreateChatBotMessageResponse response = chatBotMessageService.createChatBotMessage(request, userId);
+		CompletableFuture<CreateChatBotMessageResponse> response = chatBotMessageService.createChatBotMessage(request,
+			userId);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
