@@ -40,7 +40,10 @@ public class JwtFilter extends OncePerRequestFilter {
 		"/api/rateplans/storages",
 		"/api/rateplans/storages/{rateplanId}",
 		"/api/auth/reissue/token",
-		"/api/auth/logout"
+		"/api/auth/logout",
+		"/actuator/health/**",
+		"/actuator/prometheus",
+		"/actuator/info"
 	);
 
 	// 비회원이면 JWT검증 필요X, 회원이면  JWT검증 필요
