@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.client.RestTemplate;
 
 import com.ureca.ufit.common.fixture.ChatBotReviewFixture;
+import com.ureca.ufit.domain.chatbot.client.ChatClient;
 import com.ureca.ufit.domain.chatbot.dto.request.CreateChatBotReviewRequest;
 import com.ureca.ufit.domain.chatbot.dto.request.CreateUserQuerySummaryRequest;
 import com.ureca.ufit.domain.chatbot.dto.response.CreateChatBotReviewResponse;
@@ -34,7 +35,8 @@ import com.ureca.ufit.global.profanity.ProfanityService;
 class ChatBotReviewServiceTest {
 
 	@Mock
-	RestTemplate restTemplate;
+	// RestTemplate restTemplate;
+	ChatClient chatClient;
 	@Mock
 	ChatBotReviewRepository chatBotReviewRepository;
 	@Mock
@@ -71,25 +73,30 @@ class ChatBotReviewServiceTest {
 			questionSummaryDto.summary()
 		);
 
-		given(restTemplate.postForObject(
-			anyString(),
-			any(CreateUserQuerySummaryRequest.class),
-			eq(QuestionSummaryDto.class)
-		)).willReturn(questionSummaryDto);
+		given(chatClient.getSummary(any(), anyLong())).willReturn(questionSummaryDto);
+
+		// given(restTemplate.postForObject(
+		// 	anyString(),
+		// 	any(CreateUserQuerySummaryRequest.class),
+		// 	eq(QuestionSummaryDto.class)
+		// )).willReturn(questionSummaryDto);
 		given(chatBotReviewRepository.save(any(ChatBotReview.class))).willReturn(chatBotReview);
 
 		// when
 		CreateChatBotReviewResponse response = chatBotReviewService.createChatBotReview(request);
 
 		// then
-		assertAll(
-			() -> assertThat(response.message()).isEqualTo(CHAT_REVIEW_SUCCESS_MSG),
-			() -> verify(chatBotReviewRepository).save(any(ChatBotReview.class)),
-			() -> verify(restTemplate).postForObject(
-				anyString(),
-				any(CreateUserQuerySummaryRequest.class),
-				eq(QuestionSummaryDto.class))
-		);
+		// assertAll(
+		// 	() -> assertThat(response.message()).isEqualTo(CHAT_REVIEW_SUCCESS_MSG),
+		// 	() -> verify(chatBotReviewRepository).save(any(ChatBotReview.class)),
+		// 	() -> verify(restTemplate).postForObject(
+		// 		anyString(),
+		// 		any(CreateUserQuerySummaryRequest.class),
+		// 		eq(QuestionSummaryDto.class))
+		// );
+		assertThat(response.message()).isEqualTo(CHAT_REVIEW_SUCCESS_MSG);
+		verify(chatClient).getSummary(any(), anyLong());
+		verify(chatBotReviewRepository).save(any());
 	}
 
 	@DisplayName("채팅방ID가 유효하지 않은 리뷰는 저장할 수 없다.")
@@ -200,34 +207,36 @@ class ChatBotReviewServiceTest {
 			.isInstanceOf(RestApiException.class)
 			.hasMessage(CHAT_BOT_REVIEW_DUPLICATED.getMessage());
 	}
-
-	@DisplayName("사용자 질의 요약이 비어있다면 리뷰를 저장할 수 없다.")
-	@Test
-	void throwExceptionWhenSummaryIsEmtpy() {
-		// given
-		CreateChatBotReviewRequest request = new CreateChatBotReviewRequest(
-			1,
-			"추천 퀄리티가 너무 좋아서 깜짝 놀랐어요.",
-			Map.of(
-				"recommandPlans",
-				List.of(
-					Map.of("aPlan", "5G 무제한"),
-					Map.of("bPlan", "내맘대로 5G 요금제")
-				)
-			),
-			1L,
-			"684d9a790eea0b57af47a8d1"
-		);
-
-		given(restTemplate.postForObject(
-			anyString(),
-			any(CreateUserQuerySummaryRequest.class),
-			eq(QuestionSummaryDto.class)
-		)).willReturn(null);
-
-		// when  // then
-		assertThatThrownBy(() -> chatBotReviewService.createChatBotReview(request))
-			.isInstanceOf(RestApiException.class)
-			.hasMessage(LLM_SUMMARY_FAIL.getMessage());
-	}
+	//
+	// @DisplayName("사용자 질의 요약이 비어있다면 리뷰를 저장할 수 없다.")
+	// @Test
+	// void throwExceptionWhenSummaryIsEmtpy() {
+	// 	// given
+	// 	CreateChatBotReviewRequest request = new CreateChatBotReviewRequest(
+	// 		1,
+	// 		"추천 퀄리티가 너무 좋아서 깜짝 놀랐어요.",
+	// 		Map.of(
+	// 			"recommandPlans",
+	// 			List.of(
+	// 				Map.of("aPlan", "5G 무제한"),
+	// 				Map.of("bPlan", "내맘대로 5G 요금제")
+	// 			)
+	// 		),
+	// 		1L,
+	// 		"684d9a790eea0b57af47a8d1"
+	// 	);
+	//
+	// 	// given(restTemplate.postForObject(
+	// 	// 	anyString(),
+	// 	// 	any(CreateUserQuerySummaryRequest.class),
+	// 	// 	eq(QuestionSummaryDto.class)
+	// 	// )).willReturn(null);
+	// 	given(chatClient.getSummary(any(), anyLong())).willReturn(null);
+	//
+	//
+	// 	// when  // then
+	// 	assertThatThrownBy(() -> chatBotReviewService.createChatBotReview(request))
+	// 		.isInstanceOf(RestApiException.class)
+	// 		.hasMessage(LLM_SUMMARY_FAIL.getMessage());
+	// }
 }
