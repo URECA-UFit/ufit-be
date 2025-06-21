@@ -49,6 +49,7 @@ public class ChatBotMessageService {
 	public CompletableFuture<CreateChatBotMessageResponse> createChatBotMessage(CreateChatBotMessageRequest request,
 		Long userId) {
 
+
 		Set<BanwordFilterPolicy> policies = Set.of(NUMBERS, WHITESPACES);
 
 		if (profanityService.containsBannedWord(request.content(), policies)) {
