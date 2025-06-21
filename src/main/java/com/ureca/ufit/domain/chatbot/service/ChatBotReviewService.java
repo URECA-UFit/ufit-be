@@ -9,6 +9,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
 
 import com.ureca.ufit.domain.admin.dto.ChatBotReviewMapper;
@@ -73,8 +74,15 @@ public class ChatBotReviewService {
 		CreateUserQuerySummaryRequest chatReviewSummaryRequest = new CreateUserQuerySummaryRequest(
 			request.recommendationMessageId());
 
-		QuestionSummaryDto questionSummaryDto = restTemplate.postForObject(url, chatReviewSummaryRequest,
-			QuestionSummaryDto.class);
+		// QuestionSummaryDto questionSummaryDto = restTemplate.postForObject(url, chatReviewSummaryRequest,
+		// 	QuestionSummaryDto.class);
+			
+		RestClient restClient = RestClient.create();
+		QuestionSummaryDto questionSummaryDto = restClient.post()
+			.uri(url)
+			.body(chatReviewSummaryRequest)
+			.retrieve()
+			.body(QuestionSummaryDto.class);
 
 		validateSummary(questionSummaryDto);
 		return questionSummaryDto;
