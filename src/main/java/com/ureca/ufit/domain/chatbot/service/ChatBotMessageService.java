@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -43,6 +44,7 @@ public class ChatBotMessageService {
 		return chatBotMessageRepository.findMessagesPage(findChatRoom, pageable, lastMessageId);
 	}
 
+	@Async
 	public CreateChatBotMessageResponse createChatBotMessage(CreateChatBotMessageRequest request, Long userId) {
 
 		Set<BanwordFilterPolicy> policies = Set.of(NUMBERS, WHITESPACES);
