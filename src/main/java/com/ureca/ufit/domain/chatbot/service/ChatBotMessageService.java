@@ -3,6 +3,7 @@ package com.ureca.ufit.domain.chatbot.service;
 import static com.ureca.ufit.global.profanity.BanwordFilterPolicy.*;
 
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
@@ -45,7 +46,9 @@ public class ChatBotMessageService {
 	}
 
 	@Async
-	public CreateChatBotMessageResponse createChatBotMessage(CreateChatBotMessageRequest request, Long userId) {
+	public CompletableFuture<CreateChatBotMessageResponse> createChatBotMessage(CreateChatBotMessageRequest request,
+		Long userId) {
+
 
 		Set<BanwordFilterPolicy> policies = Set.of(NUMBERS, WHITESPACES);
 
@@ -58,11 +61,12 @@ public class ChatBotMessageService {
 		CreateAIAnswerRequest createAIAnswerRequest = ChatMessageMapper.toCreateAIAnswerRequest(request, userId);
 
 		try {
-			return restTemplate.postForObject(
+			CreateChatBotMessageResponse response = restTemplate.postForObject(
 				fastApiUrl,
 				createAIAnswerRequest,
 				CreateChatBotMessageResponse.class
 			);
+			return CompletableFuture.completedFuture(response);
 
 		} catch (Exception e) {
 			throw new RestApiException(ChatBotErrorCode.LLM_TIMEOUT);
