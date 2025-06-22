@@ -3,13 +3,12 @@ package com.ureca.ufit.domain.chatbot.service;
 import static com.ureca.ufit.global.profanity.BanwordFilterPolicy.*;
 
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.ureca.ufit.domain.chatbot.dto.ChatMessageMapper;
 import com.ureca.ufit.domain.chatbot.dto.request.CreateAIAnswerRequest;
@@ -26,6 +25,7 @@ import com.ureca.ufit.global.profanity.BanwordFilterPolicy;
 import com.ureca.ufit.global.profanity.ProfanityService;
 
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +37,7 @@ public class ChatBotMessageService {
 	private final ChatBotMessageRepository chatBotMessageRepository;
 	private final ChatRoomRepository chatRoomRepository;
 	private final RestTemplate restTemplate;
+	private final WebClient webClient;
 
 	public CursorPageResponse<ChatMessageDto> getChatMessages(Long chatRoomId, Pageable pageable,
 		String lastMessageId) {
@@ -45,8 +46,7 @@ public class ChatBotMessageService {
 		return chatBotMessageRepository.findMessagesPage(findChatRoom, pageable, lastMessageId);
 	}
 
-	@Async
-	public CompletableFuture<CreateChatBotMessageResponse> createChatBotMessage(CreateChatBotMessageRequest request,
+	public CreateChatBotMessageResponse createChatBotMessage(CreateChatBotMessageRequest request,
 		Long userId) {
 
 		Set<BanwordFilterPolicy> policies = Set.of(NUMBERS, WHITESPACES);
@@ -60,13 +60,35 @@ public class ChatBotMessageService {
 		CreateAIAnswerRequest createAIAnswerRequest = ChatMessageMapper.toCreateAIAnswerRequest(request, userId);
 
 		try {
-			CreateChatBotMessageResponse response = restTemplate.postForObject(
+			return restTemplate.postForObject(
 				fastApiUrl,
 				createAIAnswerRequest,
 				CreateChatBotMessageResponse.class
 			);
-			return CompletableFuture.completedFuture(response);
+		} catch (Exception e) {
+			throw new RestApiException(ChatBotErrorCode.LLM_TIMEOUT);
+		}
+	}
 
+	public Mono<CreateChatBotMessageResponse> createChatBotMessageWithWebClient(CreateChatBotMessageRequest request,
+		Long userId) {
+
+		Set<BanwordFilterPolicy> policies = Set.of(NUMBERS, WHITESPACES);
+
+		if (profanityService.containsBannedWord(request.content(), policies)) {
+			throw new RestApiException(ChatBotErrorCode.CONTENT_RESTRICTED_WORD);
+		}
+
+		final String fastApiUrl = String.format("%s/api/chats/message/ai", llmBaseUrl);
+
+		CreateAIAnswerRequest createAIAnswerRequest = ChatMessageMapper.toCreateAIAnswerRequest(request, userId);
+
+		try {
+			return webClient.post()
+				.uri(fastApiUrl)
+				.bodyValue(createAIAnswerRequest)
+				.retrieve()
+				.bodyToMono(CreateChatBotMessageResponse.class);
 		} catch (Exception e) {
 			throw new RestApiException(ChatBotErrorCode.LLM_TIMEOUT);
 		}
