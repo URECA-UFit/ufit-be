@@ -47,22 +47,28 @@ public class CustomLogoutHandler implements LogoutHandler {
 			// 블랙 리스트에 어세스 토큰 추가
 			addToBlacklistRedis(accessToken);
 
+		} catch (RestApiException e) {
+			// 만료된 토큰
+			if( !e.getErrorCode().equals(CommonErrorCode.EXPIRED_TOKEN)) {
+				try {
+					SendErrorResponseUtil.sendErrorResponse(response, e.getErrorCode());
+				} catch (IOException ex) {
+					throw new RuntimeException(ex);
+				}
+			}
+		} finally {
+			// 쿠키에서 리프레시 토큰 삭제 (timeout을 0으로 두어 즉시 삭제)
+			JwtUtil.updateRefreshTokenCookie(response, null, 0);
+
 			// 레디스에서 리프레시 토큰 삭제
 			String refreshToken = JwtUtil.getRefreshTokenCookies(request);
+
 			if (refreshToken != null) {
 				// Redis에서 해당 리프레시 토큰 키 삭제
 				refreshTokenRepository.findById(refreshToken)
-					.ifPresent(refreshTokenRepository::delete);
+						.ifPresent(refreshTokenRepository::delete);
 			}
 
-			// 쿠키에서 리프레시 토큰 삭제 (timeout을 0으로 두어 즉시 삭제)
-			JwtUtil.updateRefreshTokenCookie(response, null, 0);
-		} catch (RestApiException e) {
-			try {
-				SendErrorResponseUtil.sendErrorResponse(response, e.getErrorCode());
-			} catch (IOException ex) {
-				throw new RuntimeException(ex);
-			}
 		}
 	}
 
