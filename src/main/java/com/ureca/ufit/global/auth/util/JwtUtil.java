@@ -42,8 +42,8 @@ public class JwtUtil {
 	public static final String COOKIE_HEADER_NAME = "Set-Cookie";
 	public static final String COOKIE_SAME_SITE_STRATEGY = "Lax";
 
-	public static final int ACCESS_TOKEN_EXPIRED_MS = 1000 * 60 * 30; // 30분
-	public static final int REFRESH_TOKEN_EXPIRED_MS = 1000 * 60 * 60 * 24 * 3; // 3일
+	public static final int ACCESS_TOKEN_EXPIRED_MS = 1000*13;//1000 * 60 * 30; // 30분
+	public static final int REFRESH_TOKEN_EXPIRED_MS = 1000*15;//1000 * 60 * 60 * 24 * 3; // 3일
 
 	public static String createToken(String email, String type, SecretKey secretKey, long expiresIn) {
 		return Jwts.builder()
@@ -155,7 +155,7 @@ public class JwtUtil {
 		Cookie[] cookies = request.getCookies();
 
 		if (cookies == null)
-			throw new RestApiException(CommonErrorCode.REFRESH_DENIED);
+			throw new RestApiException(CommonErrorCode.REFRESH_NOT_FOUND);
 
 		for (Cookie cookie : cookies) {
 			if (REFRESH_TOKEN_COOKIE_NAME.equals(cookie.getName())) {
@@ -163,7 +163,7 @@ public class JwtUtil {
 			}
 		}
 
-		throw new RestApiException(CommonErrorCode.REFRESH_DENIED);
+		throw new RestApiException(CommonErrorCode.REFRESH_NOT_FOUND);
 	}
 
 }

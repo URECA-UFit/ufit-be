@@ -54,8 +54,8 @@ public class CustomLogoutHandler implements LogoutHandler {
 					throw e;
 			}
 
+			String	refreshToken = JwtUtil.getRefreshTokenCookies(request);
 			// 쿠키에서 리프레시 토큰 삭제 (timeout을 0으로 두어 즉시 삭제)
-			String refreshToken = JwtUtil.getRefreshTokenCookies(request);
 			JwtUtil.updateRefreshTokenCookie(response, null, 0);
 
 			// Redis에서 해당 리프레시 토큰 키 삭제
@@ -66,6 +66,9 @@ public class CustomLogoutHandler implements LogoutHandler {
 			);
 
 		} catch (RestApiException e) {
+			// 쿠키나 레디스에서 리프레시 토큰을 찾지 못했을 경우 정상처리
+			if(e.getErrorCode().equals(CommonErrorCode.REFRESH_NOT_FOUND))
+				return;
 			try {
 				SendErrorResponseUtil.sendErrorResponse(response, e.getErrorCode());
 			} catch (IOException ex) {
