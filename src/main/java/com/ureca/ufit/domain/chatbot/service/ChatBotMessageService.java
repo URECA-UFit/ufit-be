@@ -3,6 +3,7 @@ package com.ureca.ufit.domain.chatbot.service;
 import static com.ureca.ufit.global.profanity.BanwordFilterPolicy.*;
 
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
@@ -46,29 +47,29 @@ public class ChatBotMessageService {
 		return chatBotMessageRepository.findMessagesPage(findChatRoom, pageable, lastMessageId);
 	}
 
-	public CreateChatBotMessageResponse createChatBotMessage(CreateChatBotMessageRequest request,
-		Long userId) {
+  public CreateChatBotMessageResponse createChatBotMessage(CreateChatBotMessageRequest request,
+      Long userId) {
 
-		Set<BanwordFilterPolicy> policies = Set.of(NUMBERS, WHITESPACES);
+      Set<BanwordFilterPolicy> policies = Set.of(NUMBERS, WHITESPACES);
 
-		if (profanityService.containsBannedWord(request.content(), policies)) {
-			throw new RestApiException(ChatBotErrorCode.CONTENT_RESTRICTED_WORD);
-		}
+      if (profanityService.containsBannedWord(request.content(), policies)) {
+        throw new RestApiException(ChatBotErrorCode.CONTENT_RESTRICTED_WORD);
+      }
 
-		final String fastApiUrl = String.format("%s/api/chats/message/ai", llmBaseUrl);
+      final String fastApiUrl = String.format("%s/api/chats/message/ai", llmBaseUrl);
 
-		CreateAIAnswerRequest createAIAnswerRequest = ChatMessageMapper.toCreateAIAnswerRequest(request, userId);
+      CreateAIAnswerRequest createAIAnswerRequest = ChatMessageMapper.toCreateAIAnswerRequest(request, userId);
 
-		try {
-			return restTemplate.postForObject(
-				fastApiUrl,
-				createAIAnswerRequest,
-				CreateChatBotMessageResponse.class
-			);
-		} catch (Exception e) {
-			throw new RestApiException(ChatBotErrorCode.LLM_TIMEOUT);
-		}
-	}
+      try {
+        return restTemplate.postForObject(
+          fastApiUrl,
+          createAIAnswerRequest,
+          CreateChatBotMessageResponse.class
+        );
+      } catch (Exception e) {
+        throw new RestApiException(ChatBotErrorCode.LLM_TIMEOUT);
+      }
+    }
 
 	public Mono<CreateChatBotMessageResponse> createChatBotMessageWithWebClient(CreateChatBotMessageRequest request,
 		Long userId) {

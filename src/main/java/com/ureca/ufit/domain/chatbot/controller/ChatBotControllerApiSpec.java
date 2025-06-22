@@ -1,5 +1,7 @@
 package com.ureca.ufit.domain.chatbot.controller;
 
+import java.util.concurrent.CompletableFuture;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -108,7 +110,7 @@ public interface ChatBotControllerApiSpec {
 		content = @Content(schema = @Schema(implementation = CreateChatBotMessageResponse.class))
 	))
 	@PostMapping("/message")
-	public ResponseEntity<CreateChatBotMessageResponse> createChatBotMessage(
+	public ResponseEntity<CompletableFuture<CreateChatBotMessageResponse>> createChatBotMessage(
 		@Parameter(hidden = true)
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@RequestBody @Valid CreateChatBotMessageRequest request

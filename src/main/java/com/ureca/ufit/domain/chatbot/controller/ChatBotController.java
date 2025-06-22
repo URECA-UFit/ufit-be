@@ -1,5 +1,7 @@
 package com.ureca.ufit.domain.chatbot.controller;
 
+import java.util.concurrent.CompletableFuture;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
