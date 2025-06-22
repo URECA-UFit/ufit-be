@@ -1,7 +1,5 @@
 package com.ureca.ufit.domain.chatbot.controller;
 
-import java.util.concurrent.CompletableFuture;
-
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +29,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import reactor.core.publisher.Mono;
 
 @Tag(name = "ChatBot API", description = "챗봇 관련 API")
 @RequestMapping("/api/chats")
@@ -109,7 +108,22 @@ public interface ChatBotControllerApiSpec {
 		content = @Content(schema = @Schema(implementation = CreateChatBotMessageResponse.class))
 	))
 	@PostMapping("/message")
-	public ResponseEntity<CompletableFuture<CreateChatBotMessageResponse>> createChatBotMessage(
+	public ResponseEntity<CreateChatBotMessageResponse> createChatBotMessage(
+		@Parameter(hidden = true)
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@RequestBody @Valid CreateChatBotMessageRequest request
+	);
+
+	@Operation(
+		summary = "챗봇 메시지 저장 API(WebClient)",
+		description = "사용자 메시지를 저장하고, AI 답변을 반환한다."
+	)
+	@ApiResponses(@ApiResponse(
+		responseCode = "201", description = "메시지 저장 & 답변 완료",
+		content = @Content(schema = @Schema(implementation = CreateChatBotMessageResponse.class))
+	))
+	@PostMapping("/message/webclient")
+	public ResponseEntity<Mono<CreateChatBotMessageResponse>> createChatBotMessageWithWebClient(
 		@Parameter(hidden = true)
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@RequestBody @Valid CreateChatBotMessageRequest request
