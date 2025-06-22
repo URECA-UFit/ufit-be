@@ -42,22 +42,33 @@ public class CustomLogoutHandler implements LogoutHandler {
 				throw new RestApiException(CommonErrorCode.NOT_EXIST_BEARER_SUFFIX);
 			}
 			String accessToken = bearerToken.substring(BEARER_PREFIX.length());
-			JwtUtil.validateAccessToken(accessToken, secretKey);
 
-			// 블랙 리스트에 어세스 토큰 추가
-			addToBlacklistRedis(accessToken);
+			try {
+				JwtUtil.validateAccessToken(accessToken, secretKey);
 
-			// 레디스에서 리프레시 토큰 삭제
-			String refreshToken = JwtUtil.getRefreshTokenCookies(request);
-			if (refreshToken != null) {
-				// Redis에서 해당 리프레시 토큰 키 삭제
-				refreshTokenRepository.findById(refreshToken)
-					.ifPresent(refreshTokenRepository::delete);
+				// 블랙 리스트에 어세스 토큰 추가
+				addToBlacklistRedis(accessToken);
+			} catch (RestApiException e) {
+				// 어세스토큰 만료는 정상 처리
+				if( !e.getErrorCode().equals(CommonErrorCode.EXPIRED_TOKEN))
+					throw e;
 			}
 
+			String	refreshToken = JwtUtil.getRefreshTokenCookies(request);
 			// 쿠키에서 리프레시 토큰 삭제 (timeout을 0으로 두어 즉시 삭제)
 			JwtUtil.updateRefreshTokenCookie(response, null, 0);
+
+			// Redis에서 해당 리프레시 토큰 키 삭제
+			refreshTokenRepository.delete(
+				refreshTokenRepository.findById(refreshToken).orElseThrow( () ->
+						new RestApiException(CommonErrorCode.REFRESH_NOT_FOUND)
+				)
+			);
+
 		} catch (RestApiException e) {
+			// 쿠키나 레디스에서 리프레시 토큰을 찾지 못했을 경우 정상처리
+			if(e.getErrorCode().equals(CommonErrorCode.REFRESH_NOT_FOUND))
+				return;
 			try {
 				SendErrorResponseUtil.sendErrorResponse(response, e.getErrorCode());
 			} catch (IOException ex) {

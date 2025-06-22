@@ -155,7 +155,7 @@ public class JwtUtil {
 		Cookie[] cookies = request.getCookies();
 
 		if (cookies == null)
-			throw new RestApiException(CommonErrorCode.REFRESH_DENIED);
+			throw new RestApiException(CommonErrorCode.REFRESH_NOT_FOUND);
 
 		for (Cookie cookie : cookies) {
 			if (REFRESH_TOKEN_COOKIE_NAME.equals(cookie.getName())) {
@@ -163,7 +163,7 @@ public class JwtUtil {
 			}
 		}
 
-		throw new RestApiException(CommonErrorCode.REFRESH_DENIED);
+		throw new RestApiException(CommonErrorCode.REFRESH_NOT_FOUND);
 	}
 
 }
