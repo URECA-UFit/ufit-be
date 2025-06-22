@@ -20,6 +20,7 @@ import com.ureca.ufit.global.auth.details.CustomUserDetails;
 import com.ureca.ufit.global.dto.CursorPageResponse;
 
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
@@ -52,13 +53,25 @@ public class ChatBotController implements ChatBotControllerApiSpec {
 	}
 
 	@Override
-	public ResponseEntity<CompletableFuture<CreateChatBotMessageResponse>> createChatBotMessage(
+	public ResponseEntity<CreateChatBotMessageResponse> createChatBotMessage(
 		CustomUserDetails userDetails,
 		CreateChatBotMessageRequest request) {
 
 		Long userId = (userDetails != null) ? userDetails.userId() : nonUserId;
 
-		CompletableFuture<CreateChatBotMessageResponse> response = chatBotMessageService.createChatBotMessage(request,
+		CreateChatBotMessageResponse response = chatBotMessageService.createChatBotMessage(request,
+			userId);
+		return ResponseEntity.status(HttpStatus.CREATED).body(response);
+	}
+
+	@Override
+	public ResponseEntity<Mono<CreateChatBotMessageResponse>> createChatBotMessageWithWebClient(
+		CustomUserDetails userDetails,
+		CreateChatBotMessageRequest request) {
+
+		Long userId = (userDetails != null) ? userDetails.userId() : nonUserId;
+
+		Mono<CreateChatBotMessageResponse> response = chatBotMessageService.createChatBotMessageWithWebClient(request,
 			userId);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
