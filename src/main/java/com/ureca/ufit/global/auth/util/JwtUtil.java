@@ -42,8 +42,8 @@ public class JwtUtil {
 	public static final String COOKIE_HEADER_NAME = "Set-Cookie";
 	public static final String COOKIE_SAME_SITE_STRATEGY = "Lax";
 
-	public static final int ACCESS_TOKEN_EXPIRED_MS = 1000*13;//1000 * 60 * 30; // 30분
-	public static final int REFRESH_TOKEN_EXPIRED_MS = 1000*15;//1000 * 60 * 60 * 24 * 3; // 3일
+	public static final int ACCESS_TOKEN_EXPIRED_MS = 1000 * 60 * 30; // 30분
+	public static final int REFRESH_TOKEN_EXPIRED_MS = 1000 * 60 * 60 * 24 * 3; // 3일
 
 	public static String createToken(String email, String type, SecretKey secretKey, long expiresIn) {
 		return Jwts.builder()
