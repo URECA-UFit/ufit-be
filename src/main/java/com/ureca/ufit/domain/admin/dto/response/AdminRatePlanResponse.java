@@ -7,16 +7,16 @@ public record AdminRatePlanResponse(
 	String ratePlanId,
 	String planName,
 	String summary,
-	int monthlyFee,
-	int discountFee,
+	Integer monthlyFee,
+	Integer discountFee,
 	String dataAllowance,
 	String voiceAllowance,
 	String smsAllowance,
 	Map<String, Object> basicBenefit,
 	Map<String, Object> specialBenefit,
 	Map<String, Object> discountBenefit,
-	boolean isEnabled,
-	boolean isDeleted,
+	Boolean isEnabled,
+	Boolean isDeleted,
 	LocalDateTime createdAt
 ) {
 }
