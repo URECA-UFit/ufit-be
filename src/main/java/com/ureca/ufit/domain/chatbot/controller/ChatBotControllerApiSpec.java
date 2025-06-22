@@ -110,7 +110,7 @@ public interface ChatBotControllerApiSpec {
 		content = @Content(schema = @Schema(implementation = CreateChatBotMessageResponse.class))
 	))
 	@PostMapping("/message")
-	public ResponseEntity<CompletableFuture<CreateChatBotMessageResponse>> createChatBotMessage(
+	public ResponseEntity<CreateChatBotMessageResponse> createChatBotMessage(
 		@Parameter(hidden = true)
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@RequestBody @Valid CreateChatBotMessageRequest request
