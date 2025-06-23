@@ -18,7 +18,6 @@ public class UserService {
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 
-	//DB 확인용 회원가입
 	@Transactional
 	public RegisterResponse register(RegisterRequest request) {
 		String encodedPassword = passwordEncoder.encode(request.password());

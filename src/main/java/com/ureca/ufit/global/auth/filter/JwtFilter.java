@@ -32,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
-	// 비회원 회원 모두 JWT검증 필요X
+
 	private static final List<String> WHITE_LIST = List.of(
 		"/error", "/favicon.ico", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html",
 		"/api/auth/login",
@@ -46,7 +46,7 @@ public class JwtFilter extends OncePerRequestFilter {
 		"/actuator/info"
 	);
 
-	// 비회원이면 JWT검증 필요X, 회원이면  JWT검증 필요
+
 	private static final List<String> PUBLIC_LIST = List.of(
 		"/api/chats/message",
 		"/api/chats/review",
@@ -66,10 +66,10 @@ public class JwtFilter extends OncePerRequestFilter {
 
 		boolean isPublic = PUBLIC_LIST.stream().anyMatch(pub -> matcher.match(pub, request.getRequestURI()));
 
-		// 어세스 토큰 유효성 검사 시작
+
 		String bearerToken = request.getHeader(AUTH_HEADER);
 
-		// 비회원일 때 검증 로직
+
 		if (Optional.ofNullable(bearerToken).isEmpty()) {
 			if (!isPublic) {
 				throw new RestApiException(CommonErrorCode.NOT_EXIST_BEARER_SUFFIX);
@@ -78,19 +78,19 @@ public class JwtFilter extends OncePerRequestFilter {
 			return;
 		}
 
-		// 어세스 토큰 추출
+
 		String accessToken = Optional.of(bearerToken)
 			.filter(token -> token.startsWith(BEARER_PREFIX))
 			.map(token -> token.substring(BEARER_PREFIX.length()))
 			.orElseThrow(() -> new RestApiException(CommonErrorCode.NOT_EXIST_BEARER_SUFFIX));
 
-		// 어세스 토큰 검증, 블랙 리스트 확인
+
 		JwtUtil.validateAccessToken(accessToken, secretKey);
 		if (Boolean.TRUE.equals(redisTemplate.hasKey(BLACKLIST_PREFIX + accessToken))) {
 			throw new RestApiException(CommonErrorCode.INVALID_TOKEN);
 		}
 
-		// 인증 객체를 설정하고 시큐리티 홀더에 저장
+
 		String email = JwtUtil.getEmail(accessToken, secretKey);
 		UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 		Authentication authentication = new UsernamePasswordAuthenticationToken(

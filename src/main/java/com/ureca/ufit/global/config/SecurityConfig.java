@@ -31,15 +31,13 @@ import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
-public class SecurityConfig {
+public class  SecurityConfig {
 
 	private static final String[] USER_AUTH_LIST = {
-		// 인증이 필요한 API 패턴
 		"/api/chats/{chatroomId:\\d+}"
 	};
 
 	private static final String[] ADMIN_AUTH_LIST = {
-		// 관리자 인증이 필요한 API 패턴
 		"/api/admin/rateplans",
 		"/api/admin/rateplans/{rateplanId:\\d+}",
 		"/api/admin/rateplans/metrics",
@@ -82,9 +80,9 @@ public class SecurityConfig {
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
 		http
-			.addFilterBefore(exceptionHandlerFilter, UsernamePasswordAuthenticationFilter.class) // ← 예외 핸들러
-			.addFilterBefore(loginFilter(), UsernamePasswordAuthenticationFilter.class) // ← 로그인 필터
-			.addFilterBefore(jwtFilter, BasicAuthenticationFilter.class); // ← JWT 필터
+			.addFilterBefore(exceptionHandlerFilter, UsernamePasswordAuthenticationFilter.class)
+			.addFilterBefore(loginFilter(), UsernamePasswordAuthenticationFilter.class)
+			.addFilterBefore(jwtFilter, BasicAuthenticationFilter.class);
 
 		http
 			.authorizeHttpRequests(auth -> auth
@@ -104,7 +102,6 @@ public class SecurityConfig {
 		return http.build();
 	}
 
-	// Spring Security cors Bean 등록
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();

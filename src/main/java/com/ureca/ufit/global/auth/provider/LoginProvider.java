@@ -27,10 +27,8 @@ public class LoginProvider implements AuthenticationProvider {
 
 		String email = authentication.getName();
 
-		// 인증 객체의 principal을 정의하기 위한 유저 정보
 		UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
-		// 비밀번호 검증
 		String password = authentication.getCredentials().toString();
 		if (!passwordEncoder.matches(password, userDetails.getPassword())) {
 			throw new RestApiException(UserErrorCode.USER_PASSWORD_MISMATCH);
