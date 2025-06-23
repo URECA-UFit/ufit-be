@@ -44,7 +44,6 @@ public class AdminController implements AdminControllerApiSpec {
 		return ResponseEntity.ok(response);
 	}
 
-	// 요금제 지표 조회
 	@GetMapping("/api/admin/rateplans/metrics")
 	public ResponseEntity<RatePlanMetricsResponse> getRatePlanMetrics(
 		@RequestParam(defaultValue = "1") int page,

@@ -36,7 +36,7 @@ public class CustomLogoutHandler implements LogoutHandler {
 		Authentication authentication) {
 
 		try {
-			// 로그아웃 시 헤더에 있는 어세스 토큰 검증
+
 			String bearerToken = request.getHeader(AUTH_HEADER);
 			if (bearerToken == null || !bearerToken.startsWith(BEARER_PREFIX)) {
 				throw new RestApiException(CommonErrorCode.NOT_EXIST_BEARER_SUFFIX);
@@ -46,19 +46,18 @@ public class CustomLogoutHandler implements LogoutHandler {
 			try {
 				JwtUtil.validateAccessToken(accessToken, secretKey);
 
-				// 블랙 리스트에 어세스 토큰 추가
+
 				addToBlacklistRedis(accessToken);
 			} catch (RestApiException e) {
-				// 어세스토큰 만료는 정상 처리
 				if( !e.getErrorCode().equals(CommonErrorCode.EXPIRED_TOKEN))
 					throw e;
 			}
 
 			String	refreshToken = JwtUtil.getRefreshTokenCookies(request);
-			// 쿠키에서 리프레시 토큰 삭제 (timeout을 0으로 두어 즉시 삭제)
+
 			JwtUtil.updateRefreshTokenCookie(response, null, 0);
 
-			// Redis에서 해당 리프레시 토큰 키 삭제
+
 			refreshTokenRepository.delete(
 				refreshTokenRepository.findById(refreshToken).orElseThrow( () ->
 						new RestApiException(CommonErrorCode.REFRESH_NOT_FOUND)
@@ -66,7 +65,6 @@ public class CustomLogoutHandler implements LogoutHandler {
 			);
 
 		} catch (RestApiException e) {
-			// 쿠키나 레디스에서 리프레시 토큰을 찾지 못했을 경우 정상처리
 			if(e.getErrorCode().equals(CommonErrorCode.REFRESH_NOT_FOUND))
 				return;
 			try {
@@ -79,7 +77,7 @@ public class CustomLogoutHandler implements LogoutHandler {
 
 	private void addToBlacklistRedis(String accessToken) {
 		Date expiration = JwtUtil.getExpiration(accessToken, secretKey);
-		long ttl = expiration.getTime() - System.currentTimeMillis(); // TTL: 남은 시간 - 현재 시간
+		long ttl = expiration.getTime() - System.currentTimeMillis();
 		redisTemplate.opsForValue().set(BLACKLIST_PREFIX + accessToken, "logout", ttl, TimeUnit.MILLISECONDS);
 	}
 }
