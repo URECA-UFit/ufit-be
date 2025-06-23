@@ -74,16 +74,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		@NonNull WebRequest request) {
 		log.warn(ex.getMessage(), ex);
 
-		// 필드 오류 우선 확인
 		String errMessage;
 		if (!ex.getBindingResult().getFieldErrors().isEmpty()) {
 			errMessage = ex.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
 		}
-		// 클래스 레벨(Global) 오류 확인
 		else if (!ex.getBindingResult().getGlobalErrors().isEmpty()) {
 			errMessage = ex.getBindingResult().getGlobalErrors().get(0).getDefaultMessage();
 		}
-		// 기본 메시지
 		else {
 			errMessage = "잘못된 요청입니다.";
 		}

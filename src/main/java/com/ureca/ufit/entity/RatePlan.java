@@ -118,9 +118,9 @@ public class RatePlan extends MongoTimeBaseEntity {
 			.dataAllowance(dataAllowance)
 			.voiceAllowance(voiceAllowance)
 			.smsAllowance(smsAllowance)
-			.basicBenefit(basicBenefit) // not null
-			.specialBenefit(specialBenefit) // null 가능
-			.discountBenefit(discountBenefit) // null 가능..
+			.basicBenefit(basicBenefit)
+			.specialBenefit(specialBenefit)
+			.discountBenefit(discountBenefit)
 			.isEnabled(true)
 			.isDeleted(false)
 			.build();
