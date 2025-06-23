@@ -71,7 +71,6 @@ public class UserControllerTest extends ApiSupport {
 		SecurityContextHolder.clearContext();
 	}
 
-	// 로그인 관련 테스트 시작
 	@DisplayName("사용자/관리자가 로그인 하면 refreshToken 및 accessToken이 발급된다.")
 	@Test
 	void loginTest() throws Exception {
@@ -92,15 +91,12 @@ public class UserControllerTest extends ApiSupport {
 	@DisplayName("존재하지 않는 이메일로 로그인 시도 시 404을 반환한다.")
 	@Test
 	void loginWithNonexistentEmail() throws Exception {
-		// given
 		LoginRequest request = new LoginRequest("nonexistent@email.com", "password");
 
-		// when
 		mockMvc.perform(post("/api/auth/login")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(toJson(request))
 			)
-			//then
 			.andExpect(status().isNotFound())
 			.andExpect(jsonPath("$.code")
 				.value(UserErrorCode.USER_NOT_FOUND.name()))
@@ -112,10 +108,8 @@ public class UserControllerTest extends ApiSupport {
 	@DisplayName("잘못된 비밀번호로 로그인 시도 시 400을 반환한다.")
 	@Test
 	void loginWithWrongPassword() throws Exception {
-		// given
 		LoginRequest request = new LoginRequest("test@email.com", "wrongPassword");
 
-		// when
 		mockMvc.perform(post("/api/auth/login")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(toJson(request))
@@ -127,13 +121,10 @@ public class UserControllerTest extends ApiSupport {
 				.value(UserErrorCode.USER_PASSWORD_MISMATCH.getMessage())
 			);
 	}
-	//-------------------------//
 
-	// 로그아웃 관련 테스트 시작
 	@DisplayName("로그인 후 로그아웃하면 refreshToken 삭제 및 accessToken 블랙리스트 처리된다.")
 	@Test
 	void logoutTest() throws Exception {
-		// 로그인
 		LoginRequest loginRequest = new LoginRequest(email, password);
 
 		var loginResult = mockMvc.perform(post("/api/auth/login")
@@ -146,7 +137,6 @@ public class UserControllerTest extends ApiSupport {
 			.getValue();
 		String bearerToken = loginResult.getResponse().getHeader(AUTH_HEADER);
 
-		// 로그아웃
 		mockMvc.perform(post("/api/auth/logout")
 				.header(AUTH_HEADER, bearerToken)
 				.cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken)))
@@ -177,13 +167,10 @@ public class UserControllerTest extends ApiSupport {
 			.andExpect(jsonPath("$.code").value(CommonErrorCode.INVALID_TOKEN.name()))
 			.andExpect(jsonPath("$.message").value(CommonErrorCode.INVALID_TOKEN.getMessage()));
 	}
-	//-------------------------//
 
-	// 토큰 재발급 관련 테스트 시작
 	@DisplayName("accessToken이 만료되지 않으면 재발급 요청 시 예외가 발생한다.")
 	@Test
 	void reissueFailsIfAccessTokenIsStillValid() throws Exception {
-		// 로그인으로 유효한 accessToken, refreshToken 발급
 		LoginRequest loginRequest = new LoginRequest(email, password);
 
 		var loginResult = mockMvc.perform(post("/api/auth/login")
@@ -195,7 +182,6 @@ public class UserControllerTest extends ApiSupport {
 		String validAccessToken = loginResult.getResponse().getHeader(AUTH_HEADER);
 		String validRefreshToken = loginResult.getResponse().getCookie(REFRESH_TOKEN_COOKIE_NAME).getValue();
 
-		// accessToken이 아직 유효한 상태로 재발급 시도
 		mockMvc.perform(post("/api/auth/reissue/token")
 				.header(AUTH_HEADER, validAccessToken)
 				.cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, validRefreshToken)))
@@ -215,7 +201,6 @@ public class UserControllerTest extends ApiSupport {
 	@DisplayName("accessToken이 만료되었을 경우 refreshToken을 통해 재발급할 수 있다.")
 	@Test
 	void reissueSucceedsWhenAccessTokenIsExpired() throws Exception {
-		// 1. 회원가입 → 로그인하여 토큰 발급
 		LoginRequest loginRequest = new LoginRequest(email, password);
 
 		var loginResult = mockMvc.perform(post("/api/auth/login")
@@ -227,7 +212,6 @@ public class UserControllerTest extends ApiSupport {
 		String refreshToken = loginResult.getResponse().getCookie(REFRESH_TOKEN_COOKIE_NAME).getValue();
 		String expiredAccessToken = JwtUtil.createToken(email, "access", secretKey, 1);
 
-		// 3. 재발급 요청
 		var reissueResult = mockMvc.perform(post("/api/auth/reissue/token")
 				.header(AUTH_HEADER, BEARER_PREFIX + expiredAccessToken)
 				.cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken)))
@@ -237,7 +221,6 @@ public class UserControllerTest extends ApiSupport {
 			.andExpect(cookie().exists(REFRESH_TOKEN_COOKIE_NAME))
 			.andReturn();
 
-		// 4. 응답 토큰 확인
 		String newAccessToken = reissueResult.getResponse().getHeader(AUTH_HEADER);
 		String newRefreshToken = Objects.requireNonNull(
 			reissueResult.getResponse().getCookie(REFRESH_TOKEN_COOKIE_NAME)).getValue();
@@ -263,7 +246,6 @@ public class UserControllerTest extends ApiSupport {
 	@DisplayName("블랙리스트에 등록된 accessToken으로 재발급 시도 시 401 반환")
 	@Test
 	void reissueWithBlacklistedAccessToken() throws Exception {
-		// 1. 로그인
 		LoginRequest loginRequest = new LoginRequest(email, password);
 		var loginResult = mockMvc.perform(post("/api/auth/login")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -273,10 +255,8 @@ public class UserControllerTest extends ApiSupport {
 		String accessToken = loginResult.getResponse().getHeader(AUTH_HEADER).substring(7);
 		String refreshToken = loginResult.getResponse().getCookie(REFRESH_TOKEN_COOKIE_NAME).getValue();
 
-		// 2. 블랙리스트에 등록
 		redisTemplate.opsForValue().set(BLACKLIST_PREFIX + accessToken, "logout");
 
-		// 3. 재발급 시도
 		mockMvc.perform(post("/api/auth/reissue/token")
 				.header(AUTH_HEADER, BEARER_PREFIX + accessToken)
 				.cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken)))

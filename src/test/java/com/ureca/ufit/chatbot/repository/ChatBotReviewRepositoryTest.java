@@ -36,16 +36,13 @@ public class ChatBotReviewRepositoryTest extends DataMongoSupport {
 	@DisplayName("커서 기반으로 챗봇 리뷰를 조회한다")
 	@Test
 	void getRatePlansByCursor() {
-		// given
 		final int SIZE = 2;
 
-		// recommendPlan 더미 데이터
 		Map<String, Object> dummyPlan = Map.of(
 			"aPlan", "aPlan",
 			"bPlan", "bPlan"
 		);
 
-		// Fixture로 생성
 		ChatBotReview r1 = ChatBotReviewFixture.chatBotReview(5, dummyPlan);
 		ChatBotReview r2 = ChatBotReviewFixture.chatBotReview(4, dummyPlan);
 		ChatBotReview r3 = ChatBotReviewFixture.chatBotReview(3, dummyPlan);
@@ -54,11 +51,9 @@ public class ChatBotReviewRepositoryTest extends DataMongoSupport {
 
 		chatBotReviewRepository.saveAll(List.of(r1, r2, r3, r4, r5));
 
-		// when
 		CursorPageResponse<ChatBotReviewResponse> page1 =
 			chatBotReviewRepository.getChatBotReviewByCursor(null, SIZE);
 
-		// then - 원하는 결과
 		assertAll(
 			() -> assertThat(page1.item()).hasSize(SIZE),
 			() -> assertThat(page1.item())
@@ -68,7 +63,6 @@ public class ChatBotReviewRepositoryTest extends DataMongoSupport {
 			() -> assertThat(page1.nextCursor()).isEqualTo(r4.getId())
 		);
 
-		//
 	}
 
 }

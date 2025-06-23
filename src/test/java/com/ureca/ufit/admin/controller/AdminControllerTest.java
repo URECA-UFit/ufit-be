@@ -31,10 +31,9 @@ class AdminControllerTest extends ApiSupport {
 	@DisplayName("요금제의 판매 상태를 변경한다.")
 	@Test
 	void updateRatePlanSalesStatus() throws Exception {
-		// given
+
 		RatePlan savedRatePlan = ratePlanRepository.save(RatePlanFixture.ratePlan("판매 중인 요금제", true, false));
 
-		// when  // then
 		mockMvc.perform(patch("/api/admin/rateplans/{ratePlanId}", savedRatePlan.getId())
 				.contentType(APPLICATION_JSON)
 				.header("Authorization", accessTokenOfAdmin)
@@ -47,7 +46,7 @@ class AdminControllerTest extends ApiSupport {
 	@DisplayName("상품의 ID값이 없으면 판매 상태를 변경할 수 없다.")
 	@Test
 	void throwValidationExceptionWhenRatePlanIdIsNull() throws Exception {
-		// when  // then
+
 		mockMvc.perform(patch("/api/admin/rateplans/{ratePlanId}", " ")
 				.contentType(APPLICATION_JSON)
 				.header("Authorization", accessTokenOfAdmin)

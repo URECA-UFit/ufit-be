@@ -73,9 +73,6 @@ public class ChatBotReviewService {
 
 		CreateUserQuerySummaryRequest chatReviewSummaryRequest = new CreateUserQuerySummaryRequest(
 			request.recommendationMessageId());
-
-		// QuestionSummaryDto questionSummaryDto = restTemplate.postForObject(url, chatReviewSummaryRequest,
-		// 	QuestionSummaryDto.class);
 			
 		RestClient restClient = RestClient.create();
 		QuestionSummaryDto questionSummaryDto = restClient.post()

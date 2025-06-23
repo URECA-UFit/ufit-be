@@ -37,7 +37,6 @@ class LoginProviderTest {
 	@DisplayName("정상 로그인 시 Authentication 객체를 반환한다.")
 	@Test
 	void authenticateSuccess() {
-		// given
 
 		UserDetails userDetails = User.withUsername(EMAIL)
 			.password(ENCODED_PASSWORD)
@@ -50,10 +49,8 @@ class LoginProviderTest {
 		when(userDetailsService.loadUserByUsername(EMAIL)).thenReturn(userDetails);
 		when(passwordEncoder.matches(RAW_PASSWORD, ENCODED_PASSWORD)).thenReturn(true);
 
-		// when
 		Authentication result = loginProvider.authenticate(token);
 
-		// then
 		assertThat(result.isAuthenticated()).isTrue();
 		assertThat(result.getPrincipal()).isEqualTo(userDetails);
 	}

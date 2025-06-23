@@ -36,7 +36,6 @@ public class UserServiceTest {
 	@DisplayName("사용자/관리자는 정상적으로 회원가입할 수 있다.")
 	@Test
 	void registerTest() {
-		// given
 		RegisterRequest request = new RegisterRequest(
 			"test@email.com", "test123!@#",
 			28, 175,
@@ -53,10 +52,8 @@ public class UserServiceTest {
 		);
 		when(userRepository.save(Mockito.any(User.class))).thenReturn(savedUser);
 
-		// when
 		RegisterResponse response = userService.register(request);
 
-		// then
 		assertThat(response.success()).isTrue();
 	}
 }

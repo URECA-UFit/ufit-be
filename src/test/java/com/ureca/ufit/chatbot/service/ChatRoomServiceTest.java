@@ -38,7 +38,6 @@ public class ChatRoomServiceTest {
 	@Test
 	@DisplayName("회원에 대해 기존 채팅방이 있을 때 기존 채팅방을 반환한다")
 	public void getExistingChatRoom() {
-		// given
 		String email = "test@email.com";
 		Long chatRoomId = 1L;
 
@@ -48,11 +47,9 @@ public class ChatRoomServiceTest {
 		given(userRepository.getByEmail(email)).willReturn(user);
 		given(chatRoomRepository.findByUser(user)).willReturn(Optional.of(existingChatRoom));
 
-		// when
 		ChatRoomCreateResponse result = chatRoomService.getOrCreateChatRoom(
 			new CustomUserDetails(1L, email, "pass", Role.USER));
 
-		// then
 		assertThat(result.chatRoomId()).isEqualTo(chatRoomId);
 		assertThat(result.isAnonymous()).isFalse();
 		then(chatRoomRepository).should(never()).save(any(ChatRoom.class));
@@ -61,7 +58,6 @@ public class ChatRoomServiceTest {
 	@Test
 	@DisplayName("회원에 대해 기존 채팅방이 없을 때 새로운 채팅방을 생성하여 반환한다")
 	public void getOrCreateChatRoom_NoChatRoom_CreatesAndReturnsNewChatRoom() {
-		// given
 		String email = "test@email.com";
 		Long chatRoomId = 2L;
 
@@ -72,11 +68,9 @@ public class ChatRoomServiceTest {
 		given(chatRoomRepository.findByUser(user)).willReturn(Optional.empty());
 		given(chatRoomRepository.save(any(ChatRoom.class))).willReturn(newChatRoom);
 
-		// when
 		ChatRoomCreateResponse result = chatRoomService.getOrCreateChatRoom(
 			new CustomUserDetails(1L, email, "pass", Role.USER));
 
-		// then
 		assertThat(result.chatRoomId()).isEqualTo(chatRoomId);
 		assertThat(result.isAnonymous()).isFalse();
 		then(chatRoomRepository).should().save(any(ChatRoom.class));
@@ -85,16 +79,13 @@ public class ChatRoomServiceTest {
 	@Test
 	@DisplayName("비회원 사용자인 경우 새 채팅방을 생성하고 isAnonymous가 true인 응답을 반환한다")
 	public void getOrCreateChatRoom_AnonymousUser() {
-		// given
 		Long chatRoomId = 3L;
 
 		ChatRoom anonymousChatRoom = ChatRoomFixture.chatRoom(chatRoomId, null);
 		given(chatRoomRepository.save(any(ChatRoom.class))).willReturn(anonymousChatRoom);
 
-		// when
 		ChatRoomCreateResponse result = chatRoomService.getOrCreateChatRoom(null);
 
-		// then
 		assertThat(result.chatRoomId()).isEqualTo(chatRoomId);
 		assertThat(result.isAnonymous()).isTrue();
 		then(chatRoomRepository).should().save(any(ChatRoom.class));

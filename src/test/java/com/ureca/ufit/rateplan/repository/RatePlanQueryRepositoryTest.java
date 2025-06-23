@@ -40,7 +40,6 @@ class RatePlanQueryRepositoryTest extends DataMongoSupport {
 	@DisplayName("커서 기반으로 요금제 목록을 조회한다")
 	@Test
 	void getRatePlansByCursor() {
-		// given
 		final int SIZE = 2;
 		final String TYPE = "lowestPrice";
 
@@ -57,14 +56,12 @@ class RatePlanQueryRepositoryTest extends DataMongoSupport {
 			TYPE
 		);
 
-		// when
 		CursorPageResponse<AdminRatePlanResponse> response2 = ratePlanQueryRepositoryImpl.getRatePlansByCursor(
 			response1.nextCursor(),
 			SIZE,
 			TYPE
 		);
 
-		// then
 		assertAll(
 			() -> assertThat(response2.item().size()).isEqualTo(SIZE),
 			() -> assertThat(response2.item().get(SIZE - 1).planName()).isEqualTo(plan4.getPlanName()),
@@ -75,7 +72,6 @@ class RatePlanQueryRepositoryTest extends DataMongoSupport {
 	@DisplayName("낮은 가격 순으로 요금제 목록을 조회한다.")
 	@Test
 	void getRatePlansOrderByLowestPrice() {
-		// given
 		final int SIZE = 2;
 		final String TYPE = "lowestPrice";
 
@@ -86,14 +82,12 @@ class RatePlanQueryRepositoryTest extends DataMongoSupport {
 		RatePlan plan5 = RatePlanFixture.ratePlan("plan5", 300);
 		ratePlanRepository.saveAll(List.of(plan1, plan2, plan3, plan4, plan5));
 
-		// when
 		CursorPageResponse<AdminRatePlanResponse> response = ratePlanQueryRepositoryImpl.getRatePlansByCursor(
 			null,
 			SIZE,
 			TYPE
 		);
 
-		// then
 		assertAll(
 			() -> assertThat(response.item().size()).isEqualTo(SIZE),
 			() -> assertThat(response.item().get(SIZE - 1).planName()).isEqualTo(plan5.getPlanName())
@@ -103,7 +97,6 @@ class RatePlanQueryRepositoryTest extends DataMongoSupport {
 	@DisplayName("높은 가격 순으로 요금제 목록을 조회한다.")
 	@Test
 	void getRatePlansOrderByHighestPrice() {
-		// given
 		final int SIZE = 2;
 		final String TYPE = "highestPrice";
 
@@ -114,14 +107,12 @@ class RatePlanQueryRepositoryTest extends DataMongoSupport {
 		RatePlan plan5 = RatePlanFixture.ratePlan("plan5", 300);
 		ratePlanRepository.saveAll(List.of(plan1, plan2, plan3, plan4, plan5));
 
-		// when
 		CursorPageResponse<AdminRatePlanResponse> response = ratePlanQueryRepositoryImpl.getRatePlansByCursor(
 			null,
 			SIZE,
 			TYPE
 		);
 
-		// then
 		assertAll(
 			() -> assertThat(response.item().size()).isEqualTo(SIZE),
 			() -> assertThat(response.item().get(SIZE - 1).planName()).isEqualTo(plan4.getPlanName())
@@ -131,18 +122,15 @@ class RatePlanQueryRepositoryTest extends DataMongoSupport {
 	@DisplayName("요금제 목록이 비어있을 때 빈 목록이 조회된다.")
 	@Test
 	void getEmptyWhenRatePlanIsEmpty() {
-		// given
 		final int SIZE = 10;
 		final String TYPE = "highestPrice";
 
-		// when
 		CursorPageResponse<AdminRatePlanResponse> response = ratePlanQueryRepositoryImpl.getRatePlansByCursor(
 			null,
 			SIZE,
 			TYPE
 		);
 
-		// then
 		assertAll(
 			() -> assertThat(response.item().size()).isZero(),
 			() -> assertThat(response.hasNext()).isFalse(),
@@ -153,7 +141,6 @@ class RatePlanQueryRepositoryTest extends DataMongoSupport {
 	@DisplayName("가격 내림차순으로 요금제 목록을 조회한다")
 	@Test
 	void getRatePlanPreviewsOrderByPriceDesc() {
-		// given
 		final int PAGE_SIZE = 3;
 
 		RatePlan plan1 = RatePlanFixture.ratePlan("5G 베이직", 35000);
@@ -163,11 +150,9 @@ class RatePlanQueryRepositoryTest extends DataMongoSupport {
 
 		Pageable pageable = PageRequest.of(0, PAGE_SIZE);
 
-		// when
 		Page<RatePlanPreviewResponse> result =
 			ratePlanQueryRepositoryImpl.getRatePlanPreviews(pageable, "PRICE_DESC");
 
-		// then
 		assertAll(
 			() -> assertThat(result.getContent().size()).isEqualTo(3),
 			() -> assertThat(result.getTotalElements()).isEqualTo(3),
@@ -180,7 +165,6 @@ class RatePlanQueryRepositoryTest extends DataMongoSupport {
 	@DisplayName("가격 오름차순으로 요금제 목록을 조회한다")
 	@Test
 	void getRatePlanPreviewsOrderByPriceAsc() {
-		// given
 		final int PAGE_SIZE = 3;
 
 		RatePlan plan1 = RatePlanFixture.ratePlan("5G 베이직", 35000);
@@ -190,11 +174,9 @@ class RatePlanQueryRepositoryTest extends DataMongoSupport {
 
 		Pageable pageable = PageRequest.of(0, PAGE_SIZE);
 
-		// when
 		Page<RatePlanPreviewResponse> result =
 			ratePlanQueryRepositoryImpl.getRatePlanPreviews(pageable, "PRICE_ASC");
 
-		// then
 		assertAll(
 			() -> assertThat(result.getContent().size()).isEqualTo(3),
 			() -> assertThat(result.getTotalElements()).isEqualTo(3),
@@ -207,7 +189,6 @@ class RatePlanQueryRepositoryTest extends DataMongoSupport {
 	@DisplayName("페이지네이션이 정상적으로 동작한다")
 	@Test
 	void getRatePlanPreviewsPaginationWorks() {
-		// given
 		RatePlan plan1 = RatePlanFixture.ratePlan("5G 베이직", 35000);
 		RatePlan plan2 = RatePlanFixture.ratePlan("5G 프리미어", 115000);
 		RatePlan plan3 = RatePlanFixture.ratePlan("5G 라이트", 55000);
@@ -215,11 +196,9 @@ class RatePlanQueryRepositoryTest extends DataMongoSupport {
 
 		Pageable pageable = PageRequest.of(0, 2);
 
-		// when
 		Page<RatePlanPreviewResponse> result =
 			ratePlanQueryRepositoryImpl.getRatePlanPreviews(pageable, "PRICE_DESC");
 
-		// then
 		assertAll(
 			() -> assertThat(result.getContent().size()).isEqualTo(2),
 			() -> assertThat(result.getTotalElements()).isEqualTo(3),
@@ -230,15 +209,12 @@ class RatePlanQueryRepositoryTest extends DataMongoSupport {
 	@DisplayName("저장된 요금제가 없을 때 빈 목록을 조회한다")
 	@Test
 	void getRatePlanPreviewsEmptyWhenNoData() {
-		// given
 		final int PAGE_SIZE = 10;
 		Pageable pageable = PageRequest.of(0, PAGE_SIZE);
 
-		// when
 		Page<RatePlanPreviewResponse> result =
 			ratePlanQueryRepositoryImpl.getRatePlanPreviews(pageable, "PRICE_DESC");
 
-		// then
 		assertAll(
 			() -> assertThat(result.getContent().size()).isZero(),
 			() -> assertThat(result.getTotalElements()).isZero(),
@@ -249,16 +225,13 @@ class RatePlanQueryRepositoryTest extends DataMongoSupport {
 	@DisplayName("존재하는 ID로 요금제 상세 정보를 조회한다")
 	@Test
 	void getRatePlanDetailReturnsData() {
-		// given
 		RatePlan plan = RatePlanFixture.ratePlan("5G 프리미어", 115000);
 		RatePlan savedPlan = ratePlanRepository.save(plan);
 		String id = savedPlan.getId();
 
-		// when
 		Optional<RatePlanDetailResponse> result =
 			ratePlanQueryRepositoryImpl.getRatePlanDetailById(id);
 
-		// then
 		assertThat(result).isPresent();
 		RatePlanDetailResponse detail = result.get();
 
@@ -278,14 +251,11 @@ class RatePlanQueryRepositoryTest extends DataMongoSupport {
 	@DisplayName("존재하지 않는 ID로 요금제 상세 정보를 조회하면 빈 값을 반환한다")
 	@Test
 	void getRatePlanDetailReturnsEmptyForInvalidId() {
-		// given
 		String fakeId = "666f6f2d6261722d71757778";
 
-		// when
 		Optional<RatePlanDetailResponse> result =
 			ratePlanQueryRepositoryImpl.getRatePlanDetailById(fakeId);
 
-		// then
 		assertThat(result).isNotPresent();
 	}
 }

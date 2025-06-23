@@ -36,7 +36,6 @@ class LoginFilterTest {
 	@DisplayName("로그인 요청을 정상적으로 파싱하고 인증을 위임한다")
 	@Test
 	void loginFilterTest() throws IOException, ServletException {
-		// given
 		LoginRequest loginRequest = new LoginRequest("test@example.com", "password123");
 		ObjectMapper objectMapper = new ObjectMapper();
 		byte[] requestBody = objectMapper.writeValueAsBytes(loginRequest);
@@ -53,10 +52,8 @@ class LoginFilterTest {
 		when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
 			.thenReturn(dummyAuth);
 
-		// when
 		Authentication result = loginFilter.attemptAuthentication(request, response);
 
-		// then
 		assertThat(result).isNotNull();
 		verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
 	}

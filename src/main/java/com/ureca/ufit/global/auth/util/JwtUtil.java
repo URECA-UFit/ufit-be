@@ -42,8 +42,8 @@ public class JwtUtil {
 	public static final String COOKIE_HEADER_NAME = "Set-Cookie";
 	public static final String COOKIE_SAME_SITE_STRATEGY = "Lax";
 
-	public static final int ACCESS_TOKEN_EXPIRED_MS = 1000 * 60 * 30; // 30분
-	public static final int REFRESH_TOKEN_EXPIRED_MS = 1000 * 60 * 60 * 24 * 3; // 3일
+	public static final int ACCESS_TOKEN_EXPIRED_MS = 1000 * 60 * 30;
+	public static final int REFRESH_TOKEN_EXPIRED_MS = 1000 * 60 * 60 * 24 * 3;
 
 	public static String createToken(String email, String type, SecretKey secretKey, long expiresIn) {
 		return Jwts.builder()
@@ -117,10 +117,8 @@ public class JwtUtil {
 		}
 	}
 
-	// 토큰 검증 및 만료된 토큰에서 사용자의 이메일을 추출(주의: 토큰 재발급 로직에서만 사용할 것!)
 	public static String getEmailOnlyIfExpired(String token, SecretKey secretKey) {
 		try {
-			// 만료되지 않았다면 재발급 대상이 아님 → 예외 발생
 			parseClaims(token, secretKey);
 			throw new RestApiException(CommonErrorCode.REFRESH_DENIED);
 		} catch (RestApiException e) {

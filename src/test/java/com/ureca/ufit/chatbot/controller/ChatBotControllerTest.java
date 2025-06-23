@@ -34,10 +34,8 @@ class ChatBotControllerTest extends ApiSupport {
 	@DisplayName("이미 존재하는 채팅방이 있으면 ID만 반환한다.")
 	@Test
 	void returnExistingChatRoomId() throws Exception {
-		// given
 		ChatRoom existingChatRoom = chatRoomRepository.save(ChatRoomFixture.chatRoom(2L, loginUser));
 
-		// when // then
 		mockMvc.perform(post("/api/chats/rooms")
 				.header("Authorization", accessTokenOfUser)
 				.contentType(APPLICATION_JSON))
@@ -49,7 +47,6 @@ class ChatBotControllerTest extends ApiSupport {
 	@DisplayName("비회원이 요청하면 새로운 익명 채팅방을 생성한다.")
 	@Test
 	void createAnonymousChatRoomWhenNoToken() throws Exception {
-		// when // then
 		mockMvc.perform(post("/api/chats/rooms")
 				.contentType(APPLICATION_JSON))
 			.andExpect(status().isOk())
@@ -60,13 +57,11 @@ class ChatBotControllerTest extends ApiSupport {
 	@DisplayName("특정 채팅방의 메시지를 Cursor 방식으로 조회한다.")
 	@Test
 	void getMessagesWithCursorSuccess() throws Exception {
-		// given
 		ChatRoom chatRoom = chatRoomRepository.save(ChatRoomFixture.chatRoom(1L, loginUser));
 
 		ChatBotMessage savedMsg = chatBotMessageRepository.save(
 			ChatBotMessageFixture.chatBotMessage(chatRoom.getId(), null));
 
-		// when // then
 		mockMvc.perform(get("/api/chats/{chatroomId}", chatRoom.getId())
 				.param("size", "10")
 				.header("Authorization", accessTokenOfUser)

@@ -31,7 +31,6 @@ public class ChatBotMessageRepositoryTest extends DataMongoSupport {
 	@Test
 	@DisplayName("첫 페이지를 커서 기반으로 조회하면 최신 순으로 지정된 개수의 메시지를 반환하고 hasNext가 true이다.")
 	void findMessagesPage() {
-		// given
 		final Long CHAT_ROOM_ID = 1L;
 		ChatRoom chatRoom = ChatRoomFixture.chatRoom(CHAT_ROOM_ID, null);
 
@@ -51,12 +50,10 @@ public class ChatBotMessageRepositoryTest extends DataMongoSupport {
 		}
 		mongoTemplate.getDb().getCollection(COLLECTION_NAME).insertMany(docs);
 
-		// when
 		PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
 		CursorPageResponse<ChatMessageDto> response =
 			chatBotMessageRepository.findMessagesPage(chatRoom, pageRequest, null);
 
-		// then
 		assertThat(response.item()).hasSize(PAGE_SIZE);
 		assertThat(response.hasNext()).isTrue();
 		assertThat(response.nextCursor()).isNotNull();
@@ -101,11 +98,9 @@ public class ChatBotMessageRepositoryTest extends DataMongoSupport {
 		CursorPageResponse<ChatMessageDto> firstPage =
 			chatBotMessageRepository.findMessagesPage(chatRoom, pageRequest, null);
 
-		// when
 		CursorPageResponse<ChatMessageDto> secondPage =
 			chatBotMessageRepository.findMessagesPage(chatRoom, pageRequest, firstPage.nextCursor());
 
-		// then
 		assertThat(secondPage.item()).hasSize(2);
 		assertThat(secondPage.hasNext()).isFalse();
 		assertThat(secondPage.nextCursor()).isNull();

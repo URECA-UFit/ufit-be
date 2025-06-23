@@ -46,7 +46,6 @@ class AuthServiceTest {
 	@DisplayName("토큰 재발급시 어세스토큰과 리프레시토큰이 모두 재발급 된다.(RTR)")
 	@Test
 	void reissueTokenSuccess() {
-		// given
 		String email = "user@example.com";
 		String accessToken = "access.token.value";
 		String bearerToken = BEARER_PREFIX + accessToken;
@@ -68,10 +67,8 @@ class AuthServiceTest {
 					() -> JwtUtil.updateRefreshTokenCookie(response, newRefreshToken, REFRESH_TOKEN_EXPIRED_MS / 1000))
 				.thenCallRealMethod();
 
-			// when
 			authService.reissueToken(bearerToken, refreshToken, response);
 
-			// then
 			verify(refreshTokenRepository).deleteById(refreshToken);
 			ArgumentCaptor<RefreshToken> captor = ArgumentCaptor.forClass(RefreshToken.class);
 			verify(refreshTokenRepository).save(captor.capture());

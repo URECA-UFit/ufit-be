@@ -33,7 +33,6 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 
 		Authentication authentication = new UsernamePasswordAuthenticationToken(email, password);
 
-		// 인증 메니저에게 인증 객체 위임
 		return this.getAuthenticationManager().authenticate(authentication);
 	}
 }

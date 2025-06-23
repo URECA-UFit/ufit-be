@@ -20,26 +20,23 @@ public class ProfanityFilter {
 			.build();
 
 		this.attackPatterns = List.of(
-			//SQL Injection
+
 			Pattern.compile("(?i)(\\bor\\b|\\band\\b)?\\s*['\"].*?['\"]\\s*(=|>|<|like)?\\s*['\"].*?['\"]"),
 			Pattern.compile("(?i)(union(.*?)select)"),
 			Pattern.compile("(?i)(drop|insert|delete|update|select|truncate|alter)\\s+\\w+"),
 			Pattern.compile("(?i)(--)|(#)"),
 
-			// XSS
 			Pattern.compile("(?i)<script.*?>.*?</script.*?>"),
 			Pattern.compile("(?i)(onerror|onload|alert|prompt|confirm)\\s*="),
 			Pattern.compile("(?i)<.*?javascript:.*?>"),
 			Pattern.compile("(?i)<iframe.*?>.*?</iframe>"),
 
-			// 기타 명령어
 			Pattern.compile("(?i)exec\\s+(xp_cmdshell|sp_)"),
 			Pattern.compile("(?i)benchmark\\s*\\(.*?\\)"),
 			Pattern.compile("(?i)sleep\\s*\\(\\s*[0-9]+\\s*\\)")
 		);
 	}
 
-	// 정제된 데이터 반환
 	public String normalize(String input, Set<BanwordFilterPolicy> policies) {
 		if (input == null || policies.isEmpty()) {
 			return input;
